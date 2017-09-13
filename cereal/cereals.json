@@ -1,0 +1,16 @@
+{
+  "cereals": {
+    "Froot Loops": "https://images.kglobalservices.com/www.kelloggs.com/en_us/product/product_4508497/prod_img-3394699_fl_fp.jpeg",
+    "Corn Pops": "http://images.kglobalservices.com/www.kelloggs.com/en_us/product/product_4508489/kicproductimage-125783_cp_fp.jpg",
+    "Corn Flakes":"https://images.kglobalservices.com/www.kelloggs.com/en_us/product/product_4508485/prod_img-4813038_cf_2015.jpeg" ,
+    "Frosted Flakes":"http://images.kglobalservices.com/www.kelloggs.com/en_us/product/product_4508506/kicproductimage-121045_ff_original_2x_3dpack.png" ,
+    "All-Bran":"https://images.kglobalservices.com/www.kelloggs.com/en_us/product/product_4508444/kicproductimage-124883_ab_original_2016.jpeg" ,
+    "FiberPlus":"http://i.bnet.com/blogs/fiberplus.jpeg" ,
+    "Crunchy Nut":"http://images.kglobalservices.com/www.kelloggs.com.au/en_au/product/product_253589/prod_img-253804_kelloggs-crunchy-nut-corn-flakes-2.png" ,
+    "Krave":"https://images-na.ssl-images-amazon.com/images/I/81bsrFDMJlL._SY550_.jpg" ,
+    "Coco Pops":"http://www.kelloggs.co.uk/content/dam/workarea/assetpushqueue/assetpushqueue-WebAssets-Approved/images/web-raw-Approved/eng%20UK/45/99/1234599.jpg.thumb.319.319.png" ,
+    "Rice Krispies":"https://images-na.ssl-images-amazon.com/images/I/91wQJ7zL0hL._SX466_.jpg" ,
+    "Frosted Mini-Wheats":"https://target.scene7.com/is/image/Target/13361816?wid=520&hei=520&fmt=pjpeg" ,
+    "Special K":"https://images.kglobalservices.com/www.kelloggs.com.au/en_au/product/product_4508681/prod_img-198168_kelloggs-special-k-original-2.png" 
+  }
+}

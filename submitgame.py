@@ -8,7 +8,7 @@ def load(data_dir):
 
 
 """
-Created by Matthew Klawitter 9/27/2017
+Created by Matthew Klawitter 10/5/2017
 """
 
 
@@ -33,14 +33,36 @@ class SubmitGame(Plugin):
                 return "Added " + command.args + " to the list!"
         return "Game already exists in list!"
 
+    def remove_game(self, command):
+        if self.game_exists(command.args):
+            file = open(self.dir + '/' + 'gamelist' + '.txt', 'r').readlines()
+            print(file)
+            new_list = ""
+
+            for game in file:
+                if not game.__eq__(command.args + "\n"):
+                    new_list += game
+
+            with open(self.dir + '/' + 'gamelist' + '.txt', 'w') as f:
+                f.seek(0)
+                f.write(new_list)
+                f.close()
+
+            return "Removed " + command.args + " from the list!"
+        else:
+            return "Unable to remove " + command.args + " from the game list. It might not exist!"
+
     def list_game(self):
         with open(self.dir + '/' + 'gamelist' + '.txt', 'r') as f:
-            return "Here is a list of submitted games!" + "\n" + f.read()
+            if self.file_exists(self.dir + '/' + 'gamelist' + '.txt'):
+                return "Here is a list of submitted games!" + "\n" + f.read()
+            else:
+                return "No games have been added to the list!"
 
-    def game_exists(self, command):
+    def game_exists(self, message):
         with open(self.dir + '/' + 'gamelist' + '.txt.', 'r') as f:
             for game in f:
-                if game.__eq__(command + "\n"):
+                if game.__eq__(message + "\n"):
                     return True
                 else:
                     return False
@@ -51,11 +73,13 @@ class SubmitGame(Plugin):
     def on_command(self, command):
         if command.command == "suggestgame":
             return self.add_game(command)
+        elif command.command == "removegame":
+            return self.remove_game(command)
         elif command.command == "listgames":
             return self.list_game()
 
     def get_commands(self):
-        return {"suggestgame", "listgames"}
+        return {"suggestgame", "removegame", "listgames"}
 
     def get_name(self):
         return "Submit Game"

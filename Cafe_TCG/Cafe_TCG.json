@@ -1,0 +1,638 @@
+{
+    "Character": [
+        {
+        "Title" : "Matty",
+        "Info" :
+            {
+            "ID" : "CIntro001",
+            "Honor" : 010,
+            "Credibility" : 20,
+            "Description" : "Cafe founding member, software engineer, enjoys chaos. What more needs to be said?",
+            "Ability" : "Deduction",
+            "Faction" : "Cafe/Chaos",
+            "URL" : "",
+            "Rarity" : "Common"
+            }
+        },
+        {
+        "Title" : "Markus",
+        "Info" :
+            {
+            "ID" : "CIntro002",
+            "Honor" : 010,
+            "Credibility" : 25,
+            "Description" : "A cafe founding member, computer scientist, and practioner of FOSS",
+            "Ability" : "Counter-Argument",
+            "Faction" : "Cafe/FOSS",
+            "URL" : "",
+            "Rarity" : "Common"
+            }
+        },
+        {
+        "Title" : "Shawner",
+        "Info" :
+            {
+            "ID" : "CIntro003",
+            "Honor" : 010,
+            "Credibility" : 15,
+            "Description" : "First member to join the cafe. Really likes pools, like, alot.",
+            "Ability" : "Fake-News",
+            "Faction" : "Cafe/Pool Party",
+            "URL" : "",
+            "Rarity" : "Common"
+            }
+        },
+        {
+        "Title" : "Bryce",
+        "Info" :
+            {
+            "ID" : "CIntro004",
+            "Honor" : 010,
+            "Credibility" : 20,
+            "Description" : "Cafe founding member and leader. Also a 1337 HaXx0r.",
+            "Ability" : "Hijack",
+            "Faction" : "Cafe/Hacker",
+            "URL" : "",
+            "Rarity" : "Common"
+            }
+        },
+        {
+        "Title" : "Tan",
+        "Info" :
+            {
+            "ID" : "CIntro005",
+            "Honor" : 010,
+            "Credibility" : 20,
+            "Description" : "Cafe founding member and practitioner of true neutrality.",
+            "Ability" : "True-Neutral",
+            "Faction" : "Wildcard",
+            "URL" : "",
+            "Rarity" : "Common"
+            }
+        },
+        {
+        "Title" : "Michard Klawkins",
+        "Info" :
+            {
+            "ID" : "CIntro006",
+            "Honor" : 025,
+            "Credibility" : 25,
+            "Description" : "A chaotic alter-ego who is known to grimlin.",
+            "Ability" : "Ethical Conundrum",
+            "Faction" : "Chaos",
+            "URL" : "",
+            "Rarity" : "Uncommon"
+            }
+        },
+        {
+        "Title" : "Marvalo",
+        "Info" :
+            {
+            "ID" : "CIntro007",
+            "Honor" : 025,
+            "Credibility" : 25,
+            "Description" : "A grand magician who travels the lands, seeking far and wide for new spells.",
+            "Ability" : "Book of Spells",
+            "Faction" : "Chaos",
+            "URL" : "",
+            "Rarity" : "Uncommon"
+            }
+        },
+        {
+        "Title" : "The Pool Boy",
+        "Info" :
+            {
+            "ID" : "CIntro008",
+            "Honor" : 025,
+            "Credibility" : 20,
+            "Description" : "We told you he liked pools...",
+            "Ability" : "Splash",
+            "Faction" : "",
+            "URL" : "Pool Party",
+            "Rarity" : "Uncommon"
+            }
+        },
+        {
+        "Title" : "CyberToy-C",
+        "Info" :
+            {
+            "ID" : "CIntro009",
+            "Honor" : 075,
+            "Credibility" : 20,
+            "Description" : "Kinda like Whaddafeck but not really. Definitely a hacker.",
+            "Ability" : "DDoS",
+            "Faction" : "Hacker",
+            "URL" : "",
+            "Rarity" : "Rare"
+            }
+        },
+        {
+        "Title" : "TanTan",
+        "Info" :
+            {
+            "ID" : "CIntro010",
+            "Honor" : 075,
+            "Credibility" : 10,
+            "Description" : "One shutters to know the thoughts behind this individual. Probably a meme.",
+            "Ability" : "Silence",
+            "Faction" : "Cafe",
+            "URL" : "",
+            "Rarity" : "Rare"
+            }
+        },
+        {
+        "Title" : "Slavic Shawn",
+        "Info" :
+            {
+            "ID" : "CIntro011'",
+            "Honor" : 075,
+            "Credibility" : 10,
+            "Description" : "Trust me when I say a description is NOT needed.",
+            "Ability" : "Wub Wub Wub",
+            "Faction" : "Pool Party/Hacker",
+            "URL" : "",
+            "Rarity" : "Rare"
+            }
+        },
+        {
+        "Title" : "The Stallman",
+        "Info" :
+            {
+            "ID" : "CIntro012",
+            "Honor" : 075,
+            "Credibility" : 25,
+            "Description" : "Daedric prince of freedom.",
+            "Ability" : "Open-Source",
+            "Faction" : "FOSS/Hacker",
+            "URL" : "",
+            "Rarity" : "Rare"
+            }
+        },
+        {
+        "Title" : "The Memer",
+        "Info" :
+            {
+            "ID" : "CIntro013",
+            "Honor" : 125,
+            "Credibility" : 25,
+            "Description" : "A unit of cultural transmission - Richard Dawkins",
+            "Ability" : "Birth of a Meme",
+            "Faction" : "Wildcard",
+            "URL" : "",
+            "Rarity" : "Ultra-Rare"
+            }
+        },
+        {
+        "Title" : "The Salty Seafarer",
+        "Info" :
+            {
+            "ID" : "CIntro014",
+            "Honor" : 125,
+            "Credibility" : 20,
+            "Description" : "Hardy har har, welcome to the Seafarer's Cafe.",
+            "Ability" : "Ultimate Brew",
+            "Faction" : "Cafe",
+            "URL" : "",
+            "Rarity" : "Ultra-Rare"
+            }
+        },
+        {
+        "Title" : "Steve Clarney",
+        "Info" :
+            {
+            "ID" : "CIntro015",
+            "Honor" : 125,
+            "Credibility" : 30,
+            "Description" : "STEEEEEEEVE CLARNEY",
+            "Ability" : "STEEEEEEEVE CLARNEY!",
+            "Faction" : "FOSS",
+            "URL" : "",
+            "Rarity" : "Ultra-Rare"
+            }
+        }
+    ],
+    "Ability": [
+        {
+        "Title" : "Dip in the Deep End",
+        "Info" :
+            {
+            "ID" : "AIntro001",
+            "Honor" : 010,
+            "Description" : "The deep end is an analogy for a place where ideas and society die.",
+            "Ability" : "",
+            "Faction" : "Pool Party",
+            "URL" : "",
+            "Rarity" : "Common"
+            }
+        },
+        {
+        "Title" : "The Art of War",
+        "Info" :
+            {
+            "ID" : "AIntro002",
+            "Honor" : 010,
+            "Description" : "If fighting is sure to result in victory then you must fight! - Sun Tsu",
+            "Ability" : "",
+            "Faction" : "Chaos/Hacker",
+            "URL" : "",
+            "Rarity" : "Common"
+            }
+        },
+        {
+        "Title" : "Brew up some joe!",
+        "Info" :
+            {
+            "ID" : "AIntro003",
+            "Honor" : 010,
+            "Description" : "What kind of cafe doesn't brew coffee?",
+            "Ability" : "",
+            "Faction" : "Cafe",
+            "URL" : "",
+            "Rarity" : "Common"
+            }
+        },
+        {
+        "Title" : "Gone phishing!",
+        "Info" :
+            {
+            "ID" : "AIntro004",
+            "Honor" : 010,
+            "Description" : "",
+            "Ability" : "",
+            "Faction" : "Hacker",
+            "URL" : "",
+            "Rarity" : "Common"
+            }
+        },
+        {
+        "Title" : "Crack the Code",
+        "Info" :
+            {
+            "ID" : "AIntro005",
+            "Honor" : 025,
+            "Description" : "",
+            "Ability" : "",
+            "Faction" : "FOSS/Hacker",
+            "URL" : "",
+            "Rarity" : "Uncommon"
+            }
+        },
+        {
+        "Title" : "Exploit",
+        "Info" :
+            {
+            "ID" : "Intro006",
+            "Honor" : 025,
+            "Description" : "",
+            "Ability" : "",
+            "Faction" : "Hacker",
+            "URL" : "",
+            "Rarity" : "Uncommon"
+            }
+        },
+        {
+        "Title" : "Crate Sickness",
+        "Info" :
+            {
+            "ID" : "Intro007",
+            "Honor" : 025,
+            "Description" : "",
+            "Ability" : "",
+            "Faction" : "Chaos",
+            "URL" : "",
+            "Rarity" : "Uncommon"
+            }
+        },
+        {
+        "Title" : "Cafe Adventure!",
+        "Info" :
+            {
+            "ID" : "Intro008",
+            "Honor" : 075,
+            "Description" : "",
+            "Ability" : "",
+            "Faction" : "Cafe",
+            "URL" : "",
+            "Rarity" : "Rare"
+            }
+        },
+        {
+        "Title" : "Trip to a Cafe",
+        "Info" :
+            {
+            "ID" : "Intro009",
+            "Honor" : 075,
+            "Description" : "",
+            "Ability" : "",
+            "Faction" : "Cafe/Pool Party",
+            "URL" : "",
+            "Rarity" : "Rare"
+            }
+        },
+        {
+        "Title" : "An explaination of freedom and what it means for you!",
+        "Info" :
+            {
+            "ID" : "Intro010",
+            "Honor" : 125,
+            "Description" : "",
+            "Ability" : "",
+            "Faction" : "FOSS",
+            "URL" : "",
+            "Rarity" : "Ultra-Rare"
+            }
+        }
+    ],
+    "Item": [
+        {
+        "Title" : "Fresh Coffee",
+        "Info" :
+            {
+            "ID" : "IIntro001",
+            "Honor" : 010,
+            "Description" : "",
+            "Ability" : "",
+            "Faction" : "Cafe",
+            "URL" : "",
+            "Rarity" : "Common"
+            }
+        },
+        {
+        "Title" : "Innertube",
+        "Info" :
+            {
+            "ID" : "IIntro002",
+            "Honor" : 010,
+            "Description" : "",
+            "Ability" : "",
+            "Faction" : "Pool Party",
+            "URL" : "",
+            "Rarity" : "Common"
+            }
+        },
+        {
+        "Title" : "Alchohol",
+        "Info" :
+            {
+            "ID" : "IIntro003",
+            "Honor" : 025,
+            "Description" : "",
+            "Ability" : "",
+            "Faction" : "Wildcard",
+            "URL" : "",
+            "Rarity" : "Uncommon"
+            }
+        },
+        {
+        "Title" : "Loaded dice",
+        "Info" :
+            {
+            "ID" : "IIntro004",
+            "Honor" : 025,
+            "Description" : "",
+            "Ability" : "",
+            "Faction" : "Hacker",
+            "URL" : "",
+            "Rarity" : "Uncommon"
+            }
+        },
+        {
+        "Title" : "The Montage",
+        "Info" :
+            {
+            "ID" : "IIntro005",
+            "Honor" : 075,
+            "Description" : "",
+            "Ability" : "",
+            "Faction" : "Cafe/FOSS",
+            "URL" : "",
+            "Rarity" : "Rare"
+            }
+        },
+        {
+        "Title" : "Water of Life",
+        "Info" :
+            {
+            "ID" : "IIntro006",
+            "Honor" : 125,
+            "Description" : "",
+            "Ability" : "",
+            "Faction" : "FOSS",
+            "URL" : "",
+            "Rarity" : "Ultra-Rare"
+            }
+        }
+    ],
+    "Location": [
+        {
+        "Title" : "Skyscapes",
+        "Info" :
+            {
+            "ID" : "LIntro001",
+            "Honor" : 010,
+            "Description" : "",
+            "Ability" : "",
+            "Faction" : "Wildcard",
+            "URL" : "",
+            "Rarity" : "Common"
+            }
+        },
+        {
+        "Title" : "The Cafe",
+        "Info" :
+            {
+            "ID" : "LIntro002",
+            "Honor" : 010,
+            "Description" : "",
+            "Ability" : "",
+            "Faction" : "Cafe",
+            "URL" : "",
+            "Rarity" : "Common"
+            }
+        },
+        {
+        "Title" : "The Bistro",
+        "Info" :
+            {
+            "ID" : "LIntro003",
+            "Honor" : 010,
+            "Description" : "",
+            "Ability" : "",
+            "Faction" : "Chaos",
+            "URL" : "",
+            "Rarity" : "Common"
+            }
+        },
+        {
+        "Title" : "The Gastropub",
+        "Info" :
+            {
+            "ID" : "LIntro004",
+            "Honor" : 025,
+            "Description" : "",
+            "Ability" : "",
+            "Faction" : "Wildcard",
+            "URL" : "",
+            "Rarity" : "Uncommon"
+            }
+        },
+        {
+        "Title" : "A Hotel",
+        "Info" :
+            {
+            "ID" : "LIntro005",
+            "Honor" : 025,
+            "Description" : "",
+            "Ability" : "",
+            "Faction" : "Wildcard",
+            "URL" : "",
+            "Rarity" : "Uncommon"
+            }
+        },
+        {
+        "Title" : "A Convention Center",
+        "Info" :
+            {
+            "ID" : "LIntro006",
+            "Honor" : 075,
+            "Description" : "",
+            "Ability" : "",
+            "Faction" : "Wildcard",
+            "URL" : "",
+            "Rarity" : "Rare"
+            }
+        },
+        {
+        "Title" : "A Party",
+        "Info" :
+            {
+            "ID" : "LIntro007",
+            "Honor" : 075,
+            "Description" : "",
+            "Ability" : "",
+            "Faction" : "Pool Party",
+            "URL" : "",
+            "Rarity" : "Rare"
+            }
+        },
+        {
+        "Title" : "Online",
+        "Info" :
+            {
+            "ID" : "LIntro008",
+            "Honor" : 075,
+            "Description" : "",
+            "Ability" : "",
+            "Faction" : "Wildcard",
+            "URL" : "",
+            "Rarity" : "Rare"
+            }
+        }
+    ],
+    "Argument": [
+        {
+        "Title" : "Declare",
+        "Info" :
+            {
+            "ID" : "ArIntro001",
+            "Honor" : 010,
+            "Description" : "",
+            "Ability" : "",
+            "Faction" : "Wildcard",
+            "URL" : "",
+            "Rarity" : "Common"
+            }
+        },
+        {
+        "Title" : "Rebuttal",
+        "Info" :
+            {
+            "ID" : "ArIntro002",
+            "Honor" : 010,
+            "Description" : "",
+            "Ability" : "",
+            "Faction" : "Wildcard",
+            "URL" : "",
+            "Rarity" : "Common"
+            }
+        },
+        {
+        "Title" : "Ignore",
+        "Info" :
+            {
+            "ID" : "ArIntro003",
+            "Honor" : 010,
+            "Description" : "",
+            "Ability" : "",
+            "Faction" : "Pool Party",
+            "URL" : "",
+            "Rarity" : "Common"
+            }
+        },
+        {
+        "Title" : "Intimidate",
+        "Info" :
+            {
+            "ID" : "ArIntro004",
+            "Honor" : 010,
+            "Description" : "",
+            "Ability" : "",
+            "Faction" : "Wildcard",
+            "URL" : "",
+            "Rarity" : "Common"
+            }
+        },
+        {
+        "Title" : "Lie",
+        "Info" :
+            {
+            "ID" : "ArIntro005",
+            "Honor" : 010,
+            "Description" : "",
+            "Ability" : "",
+            "Faction" : "Chaos",
+            "URL" : "",
+            "Rarity" : "Common"
+            }
+        },
+        {
+        "Title" : "Misinform",
+        "Info" :
+            {
+            "ID" : "ArIntro006",
+            "Honor" : 010,
+            "Description" : "",
+            "Ability" : "",
+            "Faction" : "Chaos",
+            "URL" : "",
+            "Rarity" : "Common"
+            }
+        },
+        {
+        "Title" : "Contradiction",
+        "Info" :
+            {
+            "ID" : "ArIntro007",
+            "Honor" : 010,
+            "Description" : "",
+            "Ability" : "",
+            "Faction" : "Wildcard",
+            "URL" : "",
+            "Rarity" : "Common"
+            }
+        },
+        {
+        "Title" : "Purjury",
+        "Info" :
+            {
+            "ID" : "ArIntro008",
+            "Honor" : 075,
+            "Description" : "",
+            "Ability" : "",
+            "Faction" : "Chaos",
+            "URL" : "",
+            "Rarity" : "Rare"
+            }
+        }
+    ]
+}

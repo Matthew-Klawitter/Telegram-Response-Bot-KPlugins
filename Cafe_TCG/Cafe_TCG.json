@@ -1,9 +1,9 @@
 {
     "Character": [
         {
-        "Title" : "Matty",
         "Info" :
             {
+            "Title" : "Matty",
             "ID" : "CIntro001",
             "Honor" : 10,
             "Credibility" : 20,
@@ -15,9 +15,9 @@
             }
         },
         {
-        "Title" : "Markus",
         "Info" :
             {
+            "Title" : "Markus",
             "ID" : "CIntro002",
             "Honor" : 10,
             "Credibility" : 25,
@@ -29,9 +29,9 @@
             }
         },
         {
-        "Title" : "Shawner",
         "Info" :
             {
+            "Title" : "Shawner",
             "ID" : "CIntro003",
             "Honor" : 10,
             "Credibility" : 15,
@@ -43,9 +43,9 @@
             }
         },
         {
-        "Title" : "Bryce",
         "Info" :
             {
+            "Title" : "Bryce",
             "ID" : "CIntro004",
             "Honor" : 10,
             "Credibility" : 20,
@@ -57,9 +57,9 @@
             }
         },
         {
-        "Title" : "Tan",
         "Info" :
             {
+            "Title" : "Tan",
             "ID" : "CIntro005",
             "Honor" : 10,
             "Credibility" : 20,
@@ -71,9 +71,9 @@
             }
         },
         {
-        "Title" : "Michard Klawkins",
         "Info" :
             {
+            "Title" : "Michard Klawkins",
             "ID" : "CIntro006",
             "Honor" : 25,
             "Credibility" : 25,
@@ -85,9 +85,9 @@
             }
         },
         {
-        "Title" : "Marvalo",
         "Info" :
             {
+            "Title" : "Marvalo",
             "ID" : "CIntro007",
             "Honor" : 25,
             "Credibility" : 25,
@@ -99,9 +99,9 @@
             }
         },
         {
-        "Title" : "The Pool Boy",
         "Info" :
             {
+            "Title" : "The Pool Boy",
             "ID" : "CIntro008",
             "Honor" : 25,
             "Credibility" : 20,
@@ -113,9 +113,9 @@
             }
         },
         {
-        "Title" : "CyberToy-C",
         "Info" :
             {
+            "Title" : "CyberToy-C",
             "ID" : "CIntro009",
             "Honor" : 75,
             "Credibility" : 20,
@@ -127,9 +127,9 @@
             }
         },
         {
-        "Title" : "TanTan",
         "Info" :
             {
+            "Title" : "TanTan",
             "ID" : "CIntro010",
             "Honor" : 75,
             "Credibility" : 10,
@@ -141,9 +141,9 @@
             }
         },
         {
-        "Title" : "Slavic Shawn",
         "Info" :
             {
+            "Title" : "Slavic Shawn",
             "ID" : "CIntro011'",
             "Honor" : 75,
             "Credibility" : 10,
@@ -155,9 +155,9 @@
             }
         },
         {
-        "Title" : "The Stallman",
         "Info" :
             {
+            "Title" : "The Stallman",
             "ID" : "CIntro012",
             "Honor" : 75,
             "Credibility" : 25,
@@ -169,9 +169,9 @@
             }
         },
         {
-        "Title" : "The Memer",
         "Info" :
             {
+            "Title" : "The Memer",
             "ID" : "CIntro013",
             "Honor" : 125,
             "Credibility" : 25,
@@ -183,9 +183,9 @@
             }
         },
         {
-        "Title" : "The Salty Seafarer",
         "Info" :
             {
+            "Title" : "The Salty Seafarer",
             "ID" : "CIntro014",
             "Honor" : 125,
             "Credibility" : 20,
@@ -197,9 +197,9 @@
             }
         },
         {
-        "Title" : "Steve Clarney",
         "Info" :
             {
+            "Title" : "Steve Clarney",
             "ID" : "CIntro015",
             "Honor" : 125,
             "Credibility" : 30,
@@ -213,9 +213,9 @@
     ],
     "Ability": [
         {
-        "Title" : "Dip in the Deep End",
         "Info" :
             {
+            "Title" : "Dip in the Deep End",
             "ID" : "AIntro001",
             "Honor" : 10,
             "Description" : "The deep end is an analogy for a place where ideas and society die.",
@@ -226,9 +226,9 @@
             }
         },
         {
-        "Title" : "The Art of War",
         "Info" :
             {
+            "Title" : "The Art of War",
             "ID" : "AIntro002",
             "Honor" : 10,
             "Description" : "If fighting is sure to result in victory then you must fight! - Sun Tsu",
@@ -239,9 +239,9 @@
             }
         },
         {
-        "Title" : "Brew up some joe!",
         "Info" :
             {
+            "Title" : "Brew up some joe!",
             "ID" : "AIntro003",
             "Honor" : 10,
             "Description" : "What kind of cafe doesn't brew coffee?",
@@ -252,9 +252,9 @@
             }
         },
         {
-        "Title" : "Gone phishing!",
         "Info" :
             {
+            "Title" : "Gone phishing!",
             "ID" : "AIntro004",
             "Honor" : 10,
             "Description" : "",
@@ -265,9 +265,9 @@
             }
         },
         {
-        "Title" : "Crack the Code",
         "Info" :
             {
+            "Title" : "Crack the Code",
             "ID" : "AIntro005",
             "Honor" : 25,
             "Description" : "",
@@ -278,9 +278,9 @@
             }
         },
         {
-        "Title" : "Exploit",
         "Info" :
             {
+            "Title" : "Exploit",
             "ID" : "Intro006",
             "Honor" : 25,
             "Description" : "",
@@ -291,9 +291,9 @@
             }
         },
         {
-        "Title" : "Crate Sickness",
         "Info" :
             {
+            "Title" : "Crate Sickness",
             "ID" : "Intro007",
             "Honor" : 25,
             "Description" : "",
@@ -304,9 +304,9 @@
             }
         },
         {
-        "Title" : "Cafe Adventure!",
         "Info" :
             {
+            "Title" : "Cafe Adventure!",
             "ID" : "Intro008",
             "Honor" : 75,
             "Description" : "",
@@ -317,9 +317,9 @@
             }
         },
         {
-        "Title" : "Trip to a Cafe",
         "Info" :
             {
+            "Title" : "Trip to a Cafe",
             "ID" : "Intro009",
             "Honor" : 75,
             "Description" : "",
@@ -330,9 +330,9 @@
             }
         },
         {
-        "Title" : "An explaination of freedom and what it means for you!",
         "Info" :
             {
+            "Title" : "An explaination of freedom and what it means for you!",
             "ID" : "Intro010",
             "Honor" : 125,
             "Description" : "",
@@ -345,9 +345,9 @@
     ],
     "Item": [
         {
-        "Title" : "Fresh Coffee",
         "Info" :
             {
+            "Title" : "Fresh Coffee",
             "ID" : "IIntro001",
             "Honor" : 10,
             "Description" : "",
@@ -358,9 +358,9 @@
             }
         },
         {
-        "Title" : "Innertube",
         "Info" :
             {
+            "Title" : "Innertube",
             "ID" : "IIntro002",
             "Honor" : 10,
             "Description" : "",
@@ -371,9 +371,9 @@
             }
         },
         {
-        "Title" : "Alchohol",
         "Info" :
             {
+            "Title" : "Alchohol",
             "ID" : "IIntro003",
             "Honor" : 25,
             "Description" : "",
@@ -384,9 +384,9 @@
             }
         },
         {
-        "Title" : "Loaded dice",
         "Info" :
             {
+            "Title" : "Loaded dice",
             "ID" : "IIntro004",
             "Honor" : 25,
             "Description" : "",
@@ -397,9 +397,9 @@
             }
         },
         {
-        "Title" : "The Montage",
         "Info" :
             {
+            "Title" : "The Montage",
             "ID" : "IIntro005",
             "Honor" : 75,
             "Description" : "",
@@ -410,9 +410,9 @@
             }
         },
         {
-        "Title" : "Water of Life",
         "Info" :
             {
+            "Title" : "Water of Life",
             "ID" : "IIntro006",
             "Honor" : 125,
             "Description" : "",
@@ -425,9 +425,9 @@
     ],
     "Location": [
         {
-        "Title" : "Skyscapes",
         "Info" :
             {
+            "Title" : "Skyscapes",
             "ID" : "LIntro001",
             "Honor" : 10,
             "Description" : "",
@@ -438,9 +438,9 @@
             }
         },
         {
-        "Title" : "The Cafe",
         "Info" :
             {
+            "Title" : "The Cafe",
             "ID" : "LIntro002",
             "Honor" : 10,
             "Description" : "",
@@ -451,9 +451,9 @@
             }
         },
         {
-        "Title" : "The Bistro",
         "Info" :
             {
+            "Title" : "The Bistro",
             "ID" : "LIntro003",
             "Honor" : 10,
             "Description" : "",
@@ -464,9 +464,9 @@
             }
         },
         {
-        "Title" : "The Gastropub",
         "Info" :
             {
+            "Title" : "The Gastropub",
             "ID" : "LIntro004",
             "Honor" : 25,
             "Description" : "",
@@ -477,9 +477,9 @@
             }
         },
         {
-        "Title" : "A Hotel",
         "Info" :
             {
+            "Title" : "A Hotel",
             "ID" : "LIntro005",
             "Honor" : 25,
             "Description" : "",
@@ -490,9 +490,9 @@
             }
         },
         {
-        "Title" : "A Convention Center",
         "Info" :
             {
+            "Title" : "A Convention Center",
             "ID" : "LIntro006",
             "Honor" : 75,
             "Description" : "",
@@ -503,9 +503,9 @@
             }
         },
         {
-        "Title" : "A Party",
         "Info" :
             {
+            "Title" : "A Party",
             "ID" : "LIntro007",
             "Honor" : 75,
             "Description" : "",
@@ -516,9 +516,9 @@
             }
         },
         {
-        "Title" : "Online",
         "Info" :
             {
+            "Title" : "Online",
             "ID" : "LIntro008",
             "Honor" : 75,
             "Description" : "",
@@ -531,9 +531,9 @@
     ],
     "Argument": [
         {
-        "Title" : "Declare",
         "Info" :
             {
+            "Title" : "Declare",
             "ID" : "ArIntro001",
             "Honor" : 10,
             "Description" : "",
@@ -544,9 +544,9 @@
             }
         },
         {
-        "Title" : "Rebuttal",
         "Info" :
             {
+            "Title" : "Rebuttal",
             "ID" : "ArIntro002",
             "Honor" : 10,
             "Description" : "",
@@ -557,9 +557,9 @@
             }
         },
         {
-        "Title" : "Ignore",
         "Info" :
             {
+            "Title" : "Ignore",
             "ID" : "ArIntro003",
             "Honor" : 10,
             "Description" : "",
@@ -570,9 +570,9 @@
             }
         },
         {
-        "Title" : "Intimidate",
         "Info" :
             {
+            "Title" : "Intimidate",
             "ID" : "ArIntro004",
             "Honor" : 10,
             "Description" : "",
@@ -583,9 +583,9 @@
             }
         },
         {
-        "Title" : "Lie",
         "Info" :
             {
+            "Title" : "Lie",
             "ID" : "ArIntro005",
             "Honor" : 10,
             "Description" : "",
@@ -596,9 +596,9 @@
             }
         },
         {
-        "Title" : "Misinform",
         "Info" :
             {
+            "Title" : "Misinform",
             "ID" : "ArIntro006",
             "Honor" : 10,
             "Description" : "",
@@ -609,9 +609,9 @@
             }
         },
         {
-        "Title" : "Contradiction",
         "Info" :
             {
+            "Title" : "Contradiction",
             "ID" : "ArIntro007",
             "Honor" : 10,
             "Description" : "",
@@ -622,9 +622,9 @@
             }
         },
         {
-        "Title" : "Purjury",
         "Info" :
             {
+            "Title" : "Purjury",
             "ID" : "ArIntro008",
             "Honor" : 75,
             "Description" : "",

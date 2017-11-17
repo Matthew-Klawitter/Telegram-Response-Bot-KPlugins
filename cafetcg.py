@@ -95,12 +95,12 @@ class CafeTCG(Plugin):
         if self.account_manager.charge(username, charge_amount):
             card_pack = self.pack_manager.open_card_pack()
 
-            cards_drawn = "You drew... \n"
+            cards_drawn = "You spent 300 honor and drew... \n"
 
             for card in card_pack:
                 cards_drawn += "Name: " + card.get_name() + "\n"
                 cards_drawn += "Rarity: " + card.get_rarity() + "\n\n"
-                self.card_storage.add_card(command.user.username, card)
+                self.card_storage.add_card(command.user.username, card.get_name())
 
             self.account_manager.save_accounts()
             return cards_drawn
@@ -140,6 +140,7 @@ class CafeTCG(Plugin):
 
         try:
             to_user = command.args[:command.args.index(" ")]
+            to_user = to_user.strip('@')
             card_name = command.args[command.args.index(" ") + 1:]
         except TypeError:
             return "CafeTCG: Invalid command format! Please enter command in the format: /pay amount @user"
@@ -169,6 +170,8 @@ class CafeTCG(Plugin):
 
         try:
             to_user = parts[0]
+            to_user = to_user.strip('@')
+            amount = int(parts[1])
         except TypeError:
             return "CafeTCG: Invalid command format! Please enter /pay amount @user"
 
@@ -183,13 +186,14 @@ class CafeTCG(Plugin):
             print("CafeTCG: Created account for " + to_user)
 
         try:
-            if self.account_manager.charge(from_user, int(parts[1])):
-                self.account_manager.pay(to_user, int(parts[1]))
+            if self.account_manager.charge(from_user, amount):
+                self.account_manager.pay(to_user, amount)
                 self.account_manager.save_accounts()
-                return "{} has paid {} honor to {}!".format(from_user, str(parts[1]), to_user)
+                return "{} has paid {} honor to {}!".format(from_user, amount, to_user)
         except TypeError:
             return "CafeTCG: Invalid command format! Please enter /pay amount @user"
 
+    # Add new register command...
     def on_command(self, command):
         print(command.command)
         if command.command == "openpack":
@@ -453,7 +457,7 @@ class HonorAccount:
         return True
 
     def charge(self, name, amount):
-        if self.honor_accounts[name] > amount:
+        if self.honor_accounts[name] >= amount:
             self.honor_accounts[name] -= amount
             return True
         return False

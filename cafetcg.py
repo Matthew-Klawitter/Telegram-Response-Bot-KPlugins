@@ -79,20 +79,17 @@ class CafeTCG(Plugin):
     def get_card(self, cardname):
         for item in self.cardlist:
             if item.get_name() == cardname:
-                return item.long_desc()
+                return item
         return "That card does not exist!"
 
     def open_pack(self, command):
-        username = command.user.username
         charge_amount = 300
 
-        if not self.card_storage.account_exists(username):
-            self.card_storage.create_account(username)
+        if not self.card_storage.account_exists(command.user.username) or not \
+                self.account_manager.account_exists(command.user.username):
+            return "{} is not a registered player! Please register using /tcgregister".format(command.user.username)
 
-        if self.account_manager.create_account(username):
-            print("CafeTCG: Created account for " + username)
-
-        if self.account_manager.charge(username, charge_amount):
+        if self.account_manager.charge(command.user.username, charge_amount):
             card_pack = self.pack_manager.open_card_pack()
 
             cards_drawn = "You spent 300 honor and drew... \n"
@@ -104,51 +101,52 @@ class CafeTCG(Plugin):
 
             self.account_manager.save_accounts()
             return cards_drawn
-        return username + ", your account doesn't possess enough funds!"
+        return command.user.username + ", your account doesn't possess enough funds!"
 
     def read_card(self, command):
-        return self.get_card(command.args)
+        return self.get_card(command.args).long_desc()
 
     def sell_card(self, command):
-        username = command.user.username
-
-        if not self.card_storage.account_exists(username):
-            self.card_storage.create_account(username)
-
-        if self.account_manager.create_account(username):
-            print("CafeTCG: Created account for " + username)
+        if not self.card_storage.account_exists(command.user.username) or not\
+                self.account_manager.account_exists(command.user.username):
+            return "{} is not a registered player! Please register using /tcgregister".format(command.user.username)
 
         if self.card_storage.remove_card(command.user.username, command.args):
-            value = 0
+            value = self.get_card(command.args).get_honor()
 
-            for card in self.cardlist:
-                if card.get_name() == command.args:
-                    value = int(card.get_honor())
-
-            self.account_manager.pay(username, value)
+            self.account_manager.pay(command.user.username, value)
             self.account_manager.save_accounts()
             return "Successfully sold a " + command.args + " for " + str(value) + " honor!"
         return "Failed to sell your " + command.args + ". It might not exist!"
 
     def get_collection(self, command):
-        if not self.card_storage.account_exists(command.user.username):
-            self.card_storage.create_account(command.user.username)
-        return self.card_storage.get_collection(command.user.username)
+        if self.card_storage.account_exists(command.user.username):
+            return self.card_storage.get_collection(command.user.username)
+        return "{} is not a registered player! Please register using /tcgregister".format(command.user.username)
 
     def trade_card(self, command):
+        parts = command.args.split(" ")
+
+        if not len(parts) == 2:
+            return "CafeTCG: Invalid command format! Please enter /tradecard @user cardname"
+
         from_user = command.user.username
+        to_user = ""
+        amount = 0
 
         try:
-            to_user = command.args[:command.args.index(" ")]
+            to_user = parts[0]
             to_user = to_user.strip('@')
-            card_name = command.args[command.args.index(" ") + 1:]
+            card_name = parts[1]
         except TypeError:
-            return "CafeTCG: Invalid command format! Please enter command in the format: /pay amount @user"
+            return "CafeTCG: Invalid command format! Please enter command in the format: /tradecard @user cardname"
+        except ValueError:
+            return "CafeTCG: Invalid command format! Please enter /tradecard @user cardname"
 
         if not self.card_storage.account_exists(from_user):
-            self.card_storage.create_account(from_user)
+            return "{} is not a registered player! Please register using /tcgregister".format(from_user)
         if not self.card_storage.account_exists(to_user):
-            self.card_storage.create_account(to_user)
+            return "{} is not a registered player! Please register using /tcgregister".format(to_user)
 
         if self.card_storage.remove_card(from_user, card_name):
             self.card_storage.add_card(to_user, card_name)
@@ -156,34 +154,39 @@ class CafeTCG(Plugin):
         return "Unable to send {} to {}. That card doesn't exist!".format(card_name, to_user)
 
     def check_balance(self, command):
-        username = command.user.username
-
-        if self.account_manager.create_account(username):
-            print("CafeTCG: Created account for " + username)
-        return self.account_manager.get_funds(username)
+        if self.account_manager.account_exists(command.user.username):
+            return self.account_manager.get_funds(command.user.username)
+        return "{} is not a registered player! Please register using /tcgregister".format(command.user.username)
 
     # Gosh this method is a mess...
     def make_payment(self, command):
         parts = command.args.split(" ")
 
+        if not len(parts) == 2:
+            return "CafeTCG: Invalid command format! Please enter /pay @user amount"
+
         from_user = command.user.username
+        to_user = ""
+        amount = 0
 
         try:
             to_user = parts[0]
             to_user = to_user.strip('@')
             amount = int(parts[1])
         except TypeError:
-            return "CafeTCG: Invalid command format! Please enter /pay amount @user"
+            return "CafeTCG: Invalid command format! Please enter /pay @user amount"
+        except ValueError:
+            return "CafeTCG: Invalid command format! Please enter /pay @user amount"
 
         if not self.card_storage.account_exists(from_user):
-            self.card_storage.create_account(from_user)
+            return "{} is not a registered player! Please register using /tcgregister".format(from_user)
         if not self.card_storage.account_exists(to_user):
-            self.card_storage.create_account(to_user)
+            return "{} is not a registered player! Please register using /tcgregister".format(to_user)
 
-        if self.account_manager.create_account(from_user):
-            print("CafeTCG: Created account for " + from_user)
-        if not self.account_manager.create_account(to_user):
-            print("CafeTCG: Created account for " + to_user)
+        if not self.account_manager.account_exists(from_user):
+            return "{} is not a registered player! Please register using /tcgregister".format(from_user)
+        if not self.account_manager.account_exists(to_user):
+            return "{} is not a registered player! Please register using /tcgregister".format(to_user)
 
         try:
             if self.account_manager.charge(from_user, amount):
@@ -191,9 +194,19 @@ class CafeTCG(Plugin):
                 self.account_manager.save_accounts()
                 return "{} has paid {} honor to {}!".format(from_user, amount, to_user)
         except TypeError:
-            return "CafeTCG: Invalid command format! Please enter /pay amount @user"
+            return "CafeTCG: Invalid command format! Please enter /pay @user amount"
 
-    # Add new register command...
+    def register(self, command):
+        if not self.card_storage.account_exists(command.user.username) or not\
+                self.account_manager.account_exists(command.user.username):
+
+            self.card_storage.create_account(command.user.username)
+            print("CafeTCG: Created card account for " + command.user.username)
+            self.account_manager.create_account(command.user.username)
+            print("CafeTCG: Created honor account for " + command.user.username)
+            return "CafeTCG: Account created for {}".format(command.user.username)
+        return "CafeTCG: Unable to create account for {}. It already exists!".format(command.user.username)
+
     def on_command(self, command):
         print(command.command)
         if command.command == "openpack":
@@ -210,9 +223,11 @@ class CafeTCG(Plugin):
             return self.check_balance(command)
         elif command.command == "pay":
             return self.make_payment(command)
+        elif command.command == "tcgregister":
+            return self.register(command)
 
     def get_commands(self):
-        return {"openpack", "readcard", "sellcard", "mycollection", "tradecard", "balance", "pay"}
+        return {"openpack", "readcard", "sellcard", "mycollection", "tradecard", "balance", "pay", "tcgregister"}
 
     def get_name(self):
         return "Cafe TCG"
@@ -271,6 +286,7 @@ class Card:
         long_desc += "Name: " + str(self.name) + "\n"
         long_desc += "Value: " + str(self.honor) + "\n"
         long_desc += "Credibility: " + str(self.cred) + "\n"
+        long_desc += "Description:" + str(self.desc) + "\n"
         long_desc += "Ability: " + str(self.ability) + "\n"
         long_desc += "Faction: " + str(self.faction) + "\n"
         long_desc += "Rarity: " + str(self.rarity)
@@ -424,9 +440,11 @@ class HonorAccount:
         self.timer.start()
 
     def create_account(self, name):
-        if name not in self.honor_accounts:
-            self.honor_accounts[name] = 1200
-            self.save_accounts()
+        self.honor_accounts[name] = 1200
+        self.save_accounts()
+
+    def account_exists(self, name):
+        if name in self.honor_accounts:
             return True
         return False
 

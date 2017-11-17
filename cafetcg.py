@@ -8,19 +8,20 @@ from time import sleep
 from plugin import Plugin
 
 
-def load(data_dir):
-    return CafeTCG(data_dir)
+def load(data_dir, bot):
+    return CafeTCG(data_dir, bot)
 
 
 """
 Created by Matthew Klawitter 11/15/2017
-Last Updated: 11/16/2017
-Version: v1.0.1.0
+Last Updated: 11/17/2017
+Version: v1.2.1.2
 """
 
 
 class CafeTCG(Plugin):
-    def __init__(self, data_dir):
+    def __init__(self, data_dir, bot):
+        self.bot = bot
         self.dir = data_dir
         self.cafetcg = {}
         self.cardlist = []
@@ -127,7 +128,7 @@ class CafeTCG(Plugin):
     def trade_card(self, command):
         parts = command.args.split(" ")
 
-        if not len(parts) == 2:
+        if not len(parts) >= 2:
             return "CafeTCG: Invalid command format! Please enter /tradecard @user cardname"
 
         from_user = command.user.username
@@ -137,7 +138,7 @@ class CafeTCG(Plugin):
         try:
             to_user = parts[0]
             to_user = to_user.strip('@')
-            card_name = parts[1]
+            card_name = command.args[command.args.index(" ") + 1:]
         except TypeError:
             return "CafeTCG: Invalid command format! Please enter command in the format: /tradecard @user cardname"
         except ValueError:
@@ -208,23 +209,22 @@ class CafeTCG(Plugin):
         return "CafeTCG: Unable to create account for {}. It already exists!".format(command.user.username)
 
     def on_command(self, command):
-        print(command.command)
         if command.command == "openpack":
-            return self.open_pack(command)
+            return {"type": "message", "message": self.open_pack(command)}
         elif command.command == "readcard":
-            return self.read_card(command)
+            return {"type": "message", "message": self.read_card(command)}
         elif command.command == "sellcard":
-            return self.sell_card(command)
+            return {"type": "message", "message": self.sell_card(command)}
         elif command.command == "mycollection":
-            return self.get_collection(command)
+            return {"type": "message", "message": self.get_collection(command)}
         elif command.command == "tradecard":
-            return self.trade_card(command)
+            return {"type": "message", "message": self.trade_card(command)}
         elif command.command == "balance":
-            return self.check_balance(command)
+            return {"type": "message", "message": self.check_balance(command)}
         elif command.command == "pay":
-            return self.make_payment(command)
+            return {"type": "message", "message": self.make_payment(command)}
         elif command.command == "tcgregister":
-            return self.register(command)
+            return {"type": "message", "message": self.register(command)}
 
     def get_commands(self):
         return {"openpack", "readcard", "sellcard", "mycollection", "tradecard", "balance", "pay", "tcgregister"}

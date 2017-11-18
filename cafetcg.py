@@ -16,7 +16,7 @@ def load(data_dir, bot):
 """
 Created by Matthew Klawitter 11/15/2017
 Last Updated: 11/17/2017
-Version: v1.2.1.2
+Version: v1.2.1.4
 """
 
 
@@ -38,11 +38,16 @@ class CafeTCG(Plugin):
         if self.account_manager.load_accounts():
             print("CafeTCG: Accounts successfully loaded")
 
+    # Builds cards by requesting json data
     def build_cards(self):
-        response = urllib.request.urlopen(
-            'https://raw.githubusercontent.com/MattKlawitter/Telegram-Response-Bot-KPlugins/dev/Cafe_TCG/Cafe_TCG.json')
-        card_data = json.loads(response.read().decode())
-        total = len(card_data['Character'])
+        try:
+            response = urllib.request.urlopen(
+                'https://raw.githubusercontent.com/MattKlawitter/Telegram-Response-Bot-KPlugins/dev/Cafe_TCG/Cafe_TCG.json')
+            card_data = json.loads(response.read().decode())
+            total = len(card_data['Character'])
+        except urllib.error.HTTPError:
+            self.cafetcg["failure"] = True
+            total = 0
 
         if total is not None or total > 0:
             self.cafetcg['total_count'] = total
@@ -62,12 +67,14 @@ class CafeTCG(Plugin):
             print("Using backup data... NYI!!!")
             self.card_backup()
 
+    # Loads a backup if we cannot obtain external json data
     def card_backup(self):
         with open(self.dir + "/" + "cardbackup.txt", "w+") as f:
             f.seek(0)
             f.write("Backup here eventually..." + "There are " + str(self.cafetcg['total_count']) + " cards!")
             f.close()
 
+    # Parses and fills a list with card objects
     def parse_cardlist(self, data_list, card_type):
         for item in data_list:
             card_info = {"type": card_type, "name": item["Info"]["Title"], "id": item["Info"]["ID"],
@@ -78,12 +85,14 @@ class CafeTCG(Plugin):
             card = Card(card_info)
             self.cardlist.append(card)
 
+    # Returns a card object based on a card name
     def get_card(self, cardname):
         for item in self.cardlist:
             if item.get_name() == cardname:
                 return item
         return "That card does not exist!"
 
+    # Opens a pack of cards, charging the user, and adding cards to their collection
     def open_pack(self, command):
         charge_amount = 300
 
@@ -105,9 +114,11 @@ class CafeTCG(Plugin):
             return cards_drawn
         return command.user.username + ", your account doesn't possess enough funds!"
 
+    # Reads a card off the card list
     def read_card(self, command):
         return self.get_card(command.args).long_desc()
 
+    # Sells a card to obtain honor
     def sell_card(self, command):
         if not self.card_storage.account_exists(command.user.username) or not\
                 self.account_manager.account_exists(command.user.username):
@@ -121,11 +132,13 @@ class CafeTCG(Plugin):
             return "Successfully sold a " + command.args + " for " + str(value) + " honor!"
         return "Failed to sell your " + command.args + ". It might not exist!"
 
+    # Returns a user's card collection (the card name and the amount they own)
     def get_collection(self, command):
         if self.card_storage.account_exists(command.user.username):
             return self.card_storage.get_collection(command.user.username)
         return "{} is not a registered player! Please register using /tcgregister".format(command.user.username)
 
+    # Gives a card to another user
     def trade_card(self, command):
         parts = command.args.split(" ")
 
@@ -155,12 +168,13 @@ class CafeTCG(Plugin):
             return "{} has given a {} to {}!".format(from_user, card_name, to_user)
         return "Unable to send {} to {}. That card doesn't exist!".format(card_name, to_user)
 
+    # Checks the honor balance of a users account
     def check_balance(self, command):
         if self.account_manager.account_exists(command.user.username):
             return self.account_manager.get_funds(command.user.username)
         return "{} is not a registered player! Please register using /tcgregister".format(command.user.username)
 
-    # Gosh this method is a mess...
+    # Sends honor to another user, subtracting that amount from the sender
     def make_payment(self, command):
         parts = command.args.split(" ")
 
@@ -180,6 +194,9 @@ class CafeTCG(Plugin):
         except ValueError:
             return "CafeTCG: Invalid command format! Please enter /pay @user amount"
 
+        if amount <= 0:
+            return "CafeTCG: Invalid amount of honor. Please enter something positive."
+
         if not self.card_storage.account_exists(from_user):
             return "{} is not a registered player! Please register using /tcgregister".format(from_user)
         if not self.card_storage.account_exists(to_user):
@@ -192,12 +209,14 @@ class CafeTCG(Plugin):
 
         try:
             if self.account_manager.charge(from_user, amount):
-                self.account_manager.pay(to_user, amount)
-                self.account_manager.save_accounts()
-                return "{} has paid {} honor to {}!".format(from_user, amount, to_user)
+                if self.account_manager.pay(to_user, amount):
+                    self.account_manager.save_accounts()
+                    return "{} has paid {} honor to {}!".format(from_user, amount, to_user)
+                return "CafeTCG: Invalid amount of honor. Please enter something positive."
         except TypeError:
             return "CafeTCG: Invalid command format! Please enter /pay @user amount"
 
+    # Registers a user to use CafeTCG commands
     def register(self, command):
         if not self.card_storage.account_exists(command.user.username) or not\
                 self.account_manager.account_exists(command.user.username):
@@ -472,8 +491,10 @@ class HonorAccount:
         return self.honor_accounts[name]
 
     def pay(self, name, amount):
-        self.honor_accounts[name] += amount
-        return True
+        if amount > 0:
+            self.honor_accounts[name] += amount
+            return True
+        return False
 
     def charge(self, name, amount):
         if self.honor_accounts[name] >= amount:

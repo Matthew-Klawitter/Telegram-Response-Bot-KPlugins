@@ -1,6 +1,7 @@
 import json
 import os
 import random
+import threading
 import urllib
 from threading import Timer
 from time import sleep
@@ -481,7 +482,7 @@ class HonorAccount:
         return False
 
     def pay_day(self):
-        while True:
+        while threading.main_thread().is_alive():
             if self.honor_accounts:
                 for account in self.honor_accounts:
                     self.honor_accounts[account] += 50

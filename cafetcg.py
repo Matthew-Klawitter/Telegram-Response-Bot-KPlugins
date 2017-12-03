@@ -15,7 +15,7 @@ def load(data_dir, bot):
 """
 Created by Matthew Klawitter 11/15/2017
 Last Updated: 11/22/2017
-Version: v2.0.2.1
+Version: v2.1.2.1
 """
 
 
@@ -68,11 +68,11 @@ class CafeTCG(Plugin):
         for item in self.cardlist:
             if item.name == cardname:
                 return item
-        return "CafeTCG: That card does not exist!"
+        return None
 
     # Opens a pack of cards, charging the user, and adding cards to their collection
     def open_pack(self, command):
-        charge_amount = 300  # TODO: Figure out different costs...
+        charge_amount = 300
 
         if len(command.args.split(" ")) < 1 or command.args == "":
             return "CafeTCG: Invalid command format! Please enter /booster [pack_name]"
@@ -195,6 +195,9 @@ class CafeTCG(Plugin):
                     if item >= 1:
                         count += 1
 
+                f.seek(0)
+                f.close()
+
                 return "CafeTCG: {}'s collection is {}% complete!".format(command.user.username.strip(".json"),
                                                                  str(round((count / total) * 100, 3)))
         return "CafeTCG: {} is not a registered player! Please register using /tcgregister"\
@@ -206,12 +209,10 @@ class CafeTCG(Plugin):
 
     # Shows a changelog of new features and changes
     def change_log(self):
-        changes = "1. Renamed commands to mobile friendly variants (use /help cafetcg to view) \n" +\
-                  "2. Added support for multiple card packs use /packs to view them! \n" +\
-                  "3. Added a 15 card 'Thanksgiving' themed set. \n" + \
-                  "4. Added /completion to check the status of your collection. \n" + \
-                  "5. Added /contents [pack_name] to view all cards within a pack. \n" + \
-                  "6. Adjusted rarity drop rates. \n"
+        changes = "1. Added /missing \n" +\
+                  "2. Removed excess words from /collection \n" +\
+                  "3. Added an admin command \n" + \
+                  "4. Began work on awarding honor \n"
         return changes
 
     # Shows all cards that can be found in a collection
@@ -222,6 +223,71 @@ class CafeTCG(Plugin):
             return self.pack_manager.pack_collection(command.args)
         else:
             return "CafeTCG: Invalid pack name! Please enter /packs to see a list of available packs."
+
+    def missing_cards(self, command):
+        if self.card_storage.account_exists(command.user.username):
+            with open(self.dir + "/" + command.user.username + ".json", "r+") as f:
+                data = json.load(f)
+                cards_needed = []
+
+                for card in data.keys():
+                    if data[card] == 0:
+                        cards_needed.append(card)
+
+                f.seek(0)
+                f.close()
+
+                response = "You still need the following cards to complete your collection: \n"
+
+                for card in cards_needed:
+                    response += card + "\n"
+
+                return response
+
+        return "CafeTCG: {} is not a registered player! Please register using /tcgregister" \
+            .format(command.user.username)
+
+    def award_honor(self, command):
+        if command.user.username == "Klawk":
+            try:
+                parameter = command.args.split()
+                name = parameter[0].strip('@')
+                amount = int(parameter[1])
+
+                if self.account_manager.account_exists(name):
+                    if amount > 0:
+                        self.account_manager.pay(name, amount)
+                        self.account_manager.save_accounts()
+                        return "CafeTCG: Payed {} {} honor!".format(name, amount)
+                    return "CafeTCG: Please enter a positive amount!"
+                return "CafeTCG: {} is not a registered player! Please register using /tcgregister"
+
+            except TypeError:
+                return "CafeTCG: Invalid command format! Please enter /award [name] [amount]"
+            except ValueError:
+                return "CafeTCG: Invalid command format! Please enter /award [name] [amount]"
+        return "CafeTCG: Don't go messing around with admin commands you little hacker you!"
+
+    def award_card(self, command):
+        if command.user.username == "Klawk":
+            try:
+                parameter = command.args.split()
+                name = parameter[0].strip('@')
+                card_name = command.args[command.args.index(" ") + 1:]
+
+                if self.account_manager.account_exists(name):
+                    if not self.get_card(card_name) is None:
+                        self.card_storage.add_card(name, card_name)
+                        self.account_manager.save_accounts()
+                        return "CafeTCG: Gave {} a {}!".format(name, card_name)
+                    return "CafeTCG: {} is not a valid card! Please enter another!".format(card_name)
+                return "CafeTCG: {} is not a registered player! Please register using /tcgregister".format(name)
+
+            except TypeError:
+                return "CafeTCG: Invalid command format! Please enter / [name] [card_name]"
+            except ValueError:
+                return "CafeTCG: Invalid command format! Please enter /award [name] [card_name]"
+        return "CafeTCG: Don't go messing around with admin commands you little hacker you!"
 
     def on_command(self, command):
         if command.command == "tcgregister":
@@ -254,18 +320,25 @@ class CafeTCG(Plugin):
                 return {"type": "message", "message": self.change_log()}
             elif command.command == "contents":
                 return {"type": "message", "message": self.set_collection(command)}
+            elif command.command == "missing":
+                return {"type": "message", "message": self.missing_cards(command)}
+            elif command.command == "awardhonor":
+                return {"type": "message", "message": self.award_honor(command)}
+            elif command.command == "awardcard":
+                return {"type": "message", "message": self.award_card(command)}
 
     def get_commands(self):
         return {"booster", "read", "sell", "collection", "trade",
                 "balance", "pay", "tcgregister", "completion", "packs",
-                "changelog", "contents"}
+                "changelog", "contents", "missing", "awardhonor", "awardcard"}
 
     def get_name(self):
         return "Cafe TCG"
 
     def get_help(self):
         return "/booster [packname] \n /read [cardname] \n /sell [cardname] \n /collection \n " \
-               "/trade [@user] [cardname] \n /balance \n /pay [@user] [amount] \n /tcgregister"
+               "/trade [@user] [cardname] \n /balance \n /pay [@user] [amount] \n /tcgregister \n" \
+               "/missing"
 
 
 """
@@ -490,7 +563,7 @@ class CardManager:
                 value = data[card.name]
 
                 if value > 0:
-                    collection += "Name: " + card.name + " | " + str(value) + "\n"
+                    collection += card.name + " | " + str(value) + "\n"
 
             f.seek(0)
             f.close()

@@ -1,10 +1,8 @@
 import json
 import os
 import random
-import threading
-from threading import Timer
-from time import sleep
 
+from libs.honorbank import HonorBank
 from plugin import Plugin
 
 
@@ -15,7 +13,7 @@ def load(data_dir, bot):
 """
 Created by Matthew Klawitter 11/15/2017
 Last Updated: 11/22/2017
-Version: v2.1.2.1
+Version: v2.2.2.1
 """
 
 
@@ -33,10 +31,7 @@ class CafeTCG(Plugin):
         self.pack_manager = PackManager(self.cardlist)
         self.card_storage = CardManager(self.dir, self.cardlist)
         self.card_storage.update_accounts()
-        self.account_manager = HonorAccount(self.dir, self.cardlist)
-
-        if self.account_manager.load_accounts():
-            print("CafeTCG: Accounts successfully loaded")
+        self.account_manager = HonorBank()
 
     # Builds cards by requesting json data
     def build_cards(self):
@@ -172,7 +167,7 @@ class CafeTCG(Plugin):
 
     # Registers a user to use CafeTCG commands
     def register(self, command):
-        if not self.card_storage.account_exists(command.user.username) or not\
+        if not self.card_storage.account_exists(command.user.username) and not\
                 self.account_manager.account_exists(command.user.username):
 
             self.card_storage.create_account(command.user.username)
@@ -209,10 +204,10 @@ class CafeTCG(Plugin):
 
     # Shows a changelog of new features and changes
     def change_log(self):
-        changes = "1. Added /missing \n" +\
-                  "2. Removed excess words from /collection \n" +\
-                  "3. Added an admin command \n" + \
-                  "4. Began work on awarding honor \n"
+        changes = "1. Added /selldups \n" +\
+                  "2.  \n" +\
+                  "3.  \n" + \
+                  "4.  \n"
         return changes
 
     # Shows all cards that can be found in a collection
@@ -289,11 +284,30 @@ class CafeTCG(Plugin):
                 return "CafeTCG: Invalid command format! Please enter /award [name] [card_name]"
         return "CafeTCG: Don't go messing around with admin commands you little hacker you!"
 
+    def sell_duplicates(self, command):
+        if self.card_storage.account_exists(command.user.username):
+            collection = self.card_storage.get_collection_list(command.user.username)
+
+            total_cards = 0
+            total_value = 0
+
+            for key in collection.keys():
+                if collection[key] > 1:
+                    while collection[key] > 1:
+                        collection[key] = collection[key] - 1
+                        self.card_storage.remove_card(command.user.username, key.name)
+                        value = self.get_card(key.name).honor
+                        total_cards += 1
+                        total_value += value
+                        self.account_manager.pay(command.user.username, value)
+
+            return "CafeTCG: You have sold {} card(s) for {} honor!".format(total_cards, total_value)
+
     def on_command(self, command):
         if command.command == "tcgregister":
             return {"type": "message", "message": self.register(command)}
 
-        if not self.card_storage.account_exists(command.user.username) or not \
+        if not self.card_storage.account_exists(command.user.username) and not \
                 self.account_manager.account_exists(command.user.username):
             return {"type": "message", "message": "{} is not a registered player!"
                                                   " Please register using /tcgregister".format(command.user.username)}
@@ -326,11 +340,14 @@ class CafeTCG(Plugin):
                 return {"type": "message", "message": self.award_honor(command)}
             elif command.command == "awardcard":
                 return {"type": "message", "message": self.award_card(command)}
+            elif command.command == "selldups":
+                return {"type": "message", "message": self.sell_duplicates(command)}
 
     def get_commands(self):
         return {"booster", "read", "sell", "collection", "trade",
                 "balance", "pay", "tcgregister", "completion", "packs",
-                "changelog", "contents", "missing", "awardhonor", "awardcard"}
+                "changelog", "contents", "missing", "awardhonor", "awardcard",
+                "selldups"}
 
     def get_name(self):
         return "Cafe TCG"
@@ -338,7 +355,7 @@ class CafeTCG(Plugin):
     def get_help(self):
         return "/booster [packname] \n /read [cardname] \n /sell [cardname] \n /collection \n " \
                "/trade [@user] [cardname] \n /balance \n /pay [@user] [amount] \n /tcgregister \n" \
-               "/missing"
+               "/missing \n /selldups"
 
 
 """
@@ -569,68 +586,149 @@ class CardManager:
             f.close()
             return collection
 
+    def get_collection_list(self, name):
+        with open(self.dir + "/" + name + ".json", "r+") as f:
+            data = json.load(f)
 
-"""
-Handles monetary values for user accounts
-Useful for attributing value to the cards
-"""
+            collection = {}
 
+            for card in self.card_list:
+                value = data[card.name]
 
-class HonorAccount:
-    def __init__(self, directory, card_list):
-        self.dir = directory
-        self.card_list = card_list
-        self.honor_accounts = {}
-        self.timer = Timer(10.0, self.pay_day)
-        self.timer.start()
+                if value > 0:
+                    collection[card] = value
 
-    def create_account(self, name):
-        self.honor_accounts[name] = 1200
-        self.save_accounts()
-
-    def account_exists(self, name):
-        if name in self.honor_accounts:
-            return True
-        return False
-
-    def remove_account(self, name):
-        del self.honor_accounts[name]
-
-    def save_accounts(self):
-        with open(self.dir + "/data/honor/" + "honor.json", "w+") as f:
-            json.dump(self.honor_accounts, f, sort_keys=True, indent=4)
             f.seek(0)
             f.close()
+            return collection
 
-    def load_accounts(self):
-        directory = self.dir + "/data/honor/" + "honor.json"
-        if os.path.isfile(directory) and os.path.getsize(directory) > 0:
-            with open(directory, "r+") as f:
-                self.honor_accounts = json.load(f)
-                f.seek(0)
-                f.close()
-            return True
+
+class Quest:
+    def __init__(self, pack_manager, pack_list):
+        self.pack_manager = pack_manager
+        self.pack_list = pack_list
+        self.cost = {} # Done
+        self.reward = {} # Done
+        self.quest_name = "" # TODO: Finish
+        self.desc = "" # TODO: Finish
+        self.quest_type = "" # Done
+        self.completed = False
+
+    def create_quest(self):
+        rand_award = random.randint(0, 2)
+        self.cost = {}
+        self.reward = {}
+
+        if rand_award == 0:  # Looks like the reward is honor!
+            rand_honor = random.randint(50, 1801)
+            self.reward["Honor"] = rand_honor
+        elif rand_award == 1:  # Looks like the reward is a card!
+            rand_pack = random.randint(0, len(self.pack_list))
+            pack = self.pack_list[rand_pack]
+
+            rand_rarity = random.randint(0, 4)
+
+            quantity = 0
+            card = Card
+
+            if rand_rarity == 0:
+                quantity = random.randint(1, 11)
+                card = self.pack_manager.pack_exists(pack).draw_card("Common")
+            elif rand_rarity == 1:
+                quantity = random.randint(1, 9)
+                card = self.pack_manager.pack_exists(pack).draw_card("Uncommon")
+            elif rand_rarity == 2:
+                quantity = random.randint(1,4)
+                card = self.pack_manager.pack_exists(pack).draw_card("Rare")
+            elif rand_rarity == 3:
+                quantity = 1
+                card = self.pack_manager.pack_exists(pack).draw_card("Ultra-Rare")
+            self.reward["Card"] = card
+            self.reward["Quantity"] = quantity
+
+        if rand_award == 0: # Looks like quest requirement is a card to get honor!
+            pack = random.randint(0, len(self.pack_list))
+            self.quest_type = "Card"
+            honor = self.reward["Quantity"]
+
+            if 50 <= honor <= 300:
+                quantity = random.randint(1, 11)
+                card = self.pack_manager.pack_exists(pack).draw_card("Common")
+            elif 301 <= honor <= 600:
+                quantity = random.randint(1, 9)
+                card = self.pack_manager.pack_exists(pack).draw_card("Uncommon")
+            elif 601 <= honor <= 1001:
+                quantity = random.randint(1, 4)
+                card = self.pack_manager.pack_exists(pack).draw_card("Rare")
+            else:
+                quantity = random.randint(1, 2)
+                card = self.pack_manager.pack_exists(pack).draw_card("Ultra-Rare")
+
+            self.cost["Card"] = card
+            self.cost["Quantity"] = quantity
+        elif rand_award == 1: # Looks like quest requirement is honor to get some cards!
+            self.quest_type = "Honor"
+            quantity = 0
+            rarity = self.reward["Card"].rarity
+
+            if rarity == "Common":
+                quantity = random.randint(25, 151)
+            elif rarity == "Uncommon":
+                quantity = random.randint(50, 351)
+            elif rarity == "Rare":
+                quantity = random.randint(100, 601)
+            elif rarity == "Ultra-Rare":
+                quantity = random.randint(200, 1201)
+            self.cost["Honor"] = quantity
+
+    def generate_name(self):
+        rand_name = random.randint(0,51)
+
+    def generate_lore(self):
+        rand_lore = random.randint(0,101)
+
+    def generate_quest_name(self):
+        return None
+
+
+class QuestManager:
+    def __init__(self, directory, pack_manager):
+        self.dir = directory
+        self.pack_manager = pack_manager
+        self.packs = []
+        for pack in self.pack_manager.cardpacks:
+            self.packs.append(pack)
+        self.quests = []
+
+    def make_quest(self):
+        self.quests.append(Quest(self.pack_manager, self.packs))
+        return "CafeTCG: A new quest has been created!"
+
+    def check_quests(self):
+        message = "CafeTCG: The following are completed quests: \n"
+        for quest in self.quests:
+            if quest.completed:
+                message += quest.name + "\n"
+        return message
+
+    def available_quests(self):
+        message = "CafeTCG: The following are available quests: \n"
+        for quest in self.quests:
+            message += quest.name + "\n"
+        return message
+
+    def quest_exists(self, quest_name):
+        for quest in self.quests:
+            if quest.name == quest_name:
+                return True
         return False
 
-    def get_funds(self, name):
-        return self.honor_accounts[name]
+    def read_quest(self, quest_name):
+        if self.quest_exists(quest_name):
+            for quest in self.quests:
+                if quest.name == quest_name:
+                    return quest.desc
+        return "CafeTCG: Quest does not exist!"
 
-    def pay(self, name, amount):
-        if amount > 0:
-            self.honor_accounts[name] += amount
-            return True
-        return False
-
-    def charge(self, name, amount):
-        if self.honor_accounts[name] >= amount:
-            self.honor_accounts[name] -= amount
-            return True
-        return False
-
-    def pay_day(self):
-        while threading.main_thread().is_alive():
-            if self.honor_accounts:
-                for account in self.honor_accounts:
-                    self.honor_accounts[account] += 50
-                    self.save_accounts()
-            sleep(3600)
+    def turn_in(self, player, quest_name):
+        return None

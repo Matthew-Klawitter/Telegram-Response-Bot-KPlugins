@@ -1,6 +1,7 @@
 import json
 
 import os
+import pickle
 import random
 import threading
 
@@ -14,8 +15,8 @@ def load(data_dir, bot):
 
 """
 Created by Matthew Klawitter 4/21/2018
-Last Updated: 4/26/2018
-Version: v1.0.0.0
+Last Updated: 4/28/2018
+Version: v1.0.1.0
 """
 
 
@@ -28,10 +29,10 @@ class HostileTakeover(Plugin):
         self.account_manager = HonorBank()
         self.load_companies()
         self.event_management = EventManagement(data_dir)
-        # TODO: get this thread working!
-        # thread = threading.Thread(43200, self.generate_conditions())
-        # thread.setDaemon(True)
-        # thread.start()
+
+        timer = threading.Timer(43200, self.generate_conditions())
+        timer.daemon = True
+        timer.start()
 
     def create_company(self, command):
         """
@@ -43,11 +44,11 @@ class HostileTakeover(Plugin):
         startup_cost = 25000
         commands = command.args.split(" ")
         if len(commands) == 1:
-            if self.get_company(commands[0].lower()) is None:
+            if self.get_company(commands[0].lower()) is None and not commands[0] == "":
                 if self.account_manager.charge(command.user.username, startup_cost):
                     new_company = Company(commands[0].lower(), command.user.username)
                     self.companies.append(new_company)
-                    # self.save_companies()
+                    self.save_companies()
                     return "CafeHT: Successfully created new company {}".format(commands[0])
                 return "CafeHT: Unable to create new company. You need {} honor to make a company!".format(startup_cost)
             return "CafeHT: Unable to create new company. A company with this name already exists!"
@@ -93,9 +94,9 @@ class HostileTakeover(Plugin):
             company = self.get_company(commands[0].lower())
             if company is not None:
                 if company.owner == command.user.username:
-                    if company.paid_today:
+                    if not company.paid_today:
                         profits = company.profits
-                        market_mod = 0.0
+                        market_mod = 1.0
                         policies = company.policies
 
                         for condition in self.event_management.current_conditions:
@@ -108,13 +109,17 @@ class HostileTakeover(Plugin):
                         if market_mod < 0:
                             market_mod = 0.0
 
-                        for share_owner in company.shares.keys:
+                        response = "CafeHT: The following amounts have been paid out for {}:\n".format(company.name)
+                        for share_owner in company.shares.keys():
                             shares = company.shares[share_owner]
                             payment = int(profits * (shares / 100) * market_mod)
+                            response += "{} : {}".format(share_owner, str(payment))
                             self.account_manager.pay(share_owner, payment)
 
-                        # self.save_companies()
-                        return "CafeHT: Payments have been made for the company {}!".format(company.name)
+                        company.profits = 0
+                        company.paid_today = True
+                        self.save_companies()
+                        return response
                     return "CafeHT: This company has already paid out today."
                 return "CafeHT: Only the company owner can issue this command."
             return "CafeHT: The company {} does not exist!".format(command.args)
@@ -133,8 +138,10 @@ class HostileTakeover(Plugin):
             if company is not None:
                 try:
                     company.value += int(commands[1])
+                    company.profits += (int(commands[1]) / 5)
                     self.account_manager.charge(command.user.username, int(commands[1]))
-                    # self.save_companies()
+                    company.update_tier()
+                    self.save_companies()
                     return "CafeHT: Invested {} into {} company!".format(int(commands[1]), company.name)
                 except ValueError:
                     return "CafeHT: Invalid command format! Please enter /invest [company_name] [amount]"
@@ -159,7 +166,7 @@ class HostileTakeover(Plugin):
                             if company.transfer_shares(command.user.username, commands[1], int(commands[2])):
                                 self.account_manager.charge(command.user.username, cost)
                                 self.account_manager.pay(commands[1], int(cost * 0.9))
-                                # self.save_companies()
+                                self.save_companies()
                                 return "CafeHT: Transferred shares from {} to {}".format(commands[1],
                                                                                          command.user.username)
                             return "CafeHT: Unable to transfer shares. They do not possess that amount!"
@@ -181,8 +188,9 @@ class HostileTakeover(Plugin):
         if len(commands) == 1:
             company = self.get_company(commands[0].lower())
             if company is not None:
-                cost = (company.value / 100)
-                return "CafeHT: The current value of shares at {} is {} honor.".format(company.name, cost)
+                cost = int(company.value / 100)
+                return "CafeHT: The current value of shares at {} is {} honor.\n".format(company.name, str(cost)) + \
+                       company.share_description()
             return "CafeHT: The company {} does not exist!".format(commands[0])
         return "CafeHT: Invalid command format! Please enter /checkshares [company_name]"
 
@@ -196,9 +204,9 @@ class HostileTakeover(Plugin):
 
     def add_policy(self, command):
         """
-        Adds a specified policy to a given company
-        :param command:
-        :return:
+        Adds a specified policy to a given company (up to three policies per company)
+        :param command: input providing the company name and policy name
+        :return: a string detailing the results of the command
         """
 
         commands = command.args.split(" ")
@@ -206,11 +214,13 @@ class HostileTakeover(Plugin):
             company = self.get_company(commands[0].lower())
             if company is not None:
                 if command.user.username == company.owner:
-                    if self.event_management.policies_list.__contains__(commands[1]):
-                        if company.add_policy(commands[1]):
-                            return "CafeHT: Successfully added {} policy to this company!".format(commands[1])
-                        return "CafeHT: Unable to add policy. It may already be set in this company or policy limit " \
-                               "is full "
+                    for policy in self.event_management.policies_list:
+                        if policy.name == commands[1].lower():
+                            if company.add_policy(policy):
+                                self.save_companies()
+                                return "CafeHT: Successfully added {} policy to this company!".format(commands[1])
+                            return "CafeHT: Unable to add policy. It may already be set in this company or policy " \
+                                   "limit is full "
                     return "CafeHT: Unable to add policy. {} is not a policy.".format(commands[1])
                 return "CafeHT: Unable to add policy. You are not the owner of this company."
             return "CafeHT: The company {} does not exist!".format(commands[0])
@@ -218,9 +228,10 @@ class HostileTakeover(Plugin):
 
     def remove_policy(self, command):
         """
-
-        :param command:
-        :return:
+        Removes a specific policy from a given company.
+        Only removes a policy if it possesses the inputted policy
+        :param command: input providing the company name and policy name
+        :return: a string detailing the results of the command
         """
 
         commands = command.args.split(" ")
@@ -229,6 +240,7 @@ class HostileTakeover(Plugin):
             if company is not None:
                 if command.user.username == company.owner:
                     if company.remove_policy(commands[1]):
+                        self.save_companies()
                         return "CafeHT: Successfully removed {} policy from this company!".format(commands[1])
                     return "CafeHT: Unable to remove policy. It does not exist within this company!"
                 return "CafeHT: Unable to remove policy. You are not the owner of this company."
@@ -237,9 +249,9 @@ class HostileTakeover(Plugin):
 
     def list_policies(self, command):
         """
-
-        :param command:
-        :return:
+        Lists all policies held by a company (up to three, some may be blank)
+        :param command: input providing the company name
+        :return: a string detailing the results of the command
         """
 
         commands = command.args.split(" ")
@@ -255,8 +267,8 @@ class HostileTakeover(Plugin):
 
     def all_policies(self):
         """
-
-        :return:
+        Lists all policies that can be held by a company
+        :return: a string containing a list of all policies
         """
 
         response = "CafeHT: Here is a list of all policies:\n"
@@ -264,11 +276,42 @@ class HostileTakeover(Plugin):
             response += policy.name + ", "
         return response
 
-    def get_company(self, name):
+    def get_tier(self, command):
+        """
+        Finds the tier of a specified company
+        :param command: input providing the company name
+        :return: a string detailing the tier of a valid company
         """
 
-        :param name:
-        :return:
+        commands = command.args.split(" ")
+        if len(commands) == 1:
+            company = self.get_company(commands[0].lower())
+            if company is not None:
+                return "CafeHT: The company is currently at tier {}!".format(company.tier)
+            return "CafeHT: The company {} does not exist!".format(commands[0])
+        return "CafeHT: Invalid command format! Please enter /comptier [company_name]"
+
+    def get_value(self, command):
+        """
+        Finds the value of a specific company
+        :param command: input providing the company name
+        :return: a string detailing the value of a valid company
+        """
+
+        commands = command.args.split(" ")
+        if len(commands) == 1:
+            company = self.get_company(commands[0].lower())
+            if company is not None:
+                return "CafeHT: The company value is currently {}!".format(company.value)
+            return "CafeHT: The company {} does not exist!".format(commands[0])
+        return "CafeHT: Invalid command format! Please enter /compvalue [company_name]"
+
+    def get_company(self, name):
+        """
+        Attempts to find a company within self.companies that has
+        a designated name
+        :param name: the name of the company
+        :return: the company object if it is found or None otherwise
         """
 
         for company in self.companies:
@@ -276,60 +319,55 @@ class HostileTakeover(Plugin):
                 return company
         return None
 
-    def save_companies(self):  # TODO: implement this correctly
+    def save_companies(self):
+        """
+        Saves all companies contained within self.companies into a file
         """
 
-        :return:
-        """
-
-        with open(self.data_dir + "/" + "companies" + ".json", "w+") as f:
-            json.dump(self.companies, f, sort_keys=True, indent=4)
+        with open(self.data_dir + "/data/" + "companies" + ".file", "wb") as f:
+            pickle.dump(self.companies, f)
             f.seek(0)
             f.close()
 
-    def load_companies(self):  # TODO: implement this correctly
+    def load_companies(self):
         """
-
-        :return:
+        Loads a list of all companies contained within a file into self.companies
         """
 
         try:
-            if os.path.getsize("/data/companies.json") > 0:
-                with open(self.data_dir + "/data/companies.json", "r+") as f:
-                    self.companies = json.load(f)
+            if os.path.getsize(self.data_dir + "/data/companies.file") > 0:
+                with open(self.data_dir + "/data/companies.file", "rb") as f:
+                    self.companies = pickle.load(f)
+                    if not isinstance(self.companies, list):  # I'm horrible... I used isinstance...
+                        list(self.companies)
                     f.seek(0)
                     f.close()
         except FileNotFoundError:
             if not os.path.exists(self.data_dir + "/data"):
                 os.makedirs(self.data_dir + "/data")
 
-            # Ensure that the account file is created.
-            with open(self.data_dir + "/data/companies.json", "w+") as f:
+            # Ensures that the account file is created.
+            with open(self.data_dir + "/data/companies.file", "w+") as f:
                 f.write("")
                 f.seek(0)
                 f.close()
 
     def generate_conditions(self):
         """
-
-        :return:
+        Runs every 12 hours.
+        Generates new market conditions and resets company payout.
         """
 
         self.event_management.set_conditions()
         for company in self.companies:
             company.paid_today = False
-            # self.save_companies()
+            company.profits += company.value
+        self.save_companies()
 
     def on_command(self, command):
-        """
-
-        :param command:
-        :return:
-        """
-
         if command.command == "createcomp":
             return {"type": "message", "message": self.create_company(command)}
-        elif command.command == "checkowner":
+        elif command.command == "compowner":
             return {"type": "message", "message": self.check_owner(command)}
         elif command.command == "listcomp":
             return {"type": "message", "message": self.list_companies()}
@@ -339,9 +377,9 @@ class HostileTakeover(Plugin):
             return {"type": "message", "message": self.invest(command)}
         elif command.command == "buyshares":
             return {"type": "message", "message": self.buy_shares(command)}
-        elif command.command == "checkshares":  # TODO: issue where you only type /checkshares it prints company does not exist, so check arg len
+        elif command.command == "checkshares":
             return {"type": "message", "message": self.check_share(command)}
-        elif command.command == "marketconditions":
+        elif command.command == "mc":
             return {"type": "message", "message": self.market_conditions()}
         elif command.command == "addpol":
             return {"type": "message", "message": self.add_policy(command)}
@@ -351,16 +389,23 @@ class HostileTakeover(Plugin):
             return {"type": "message", "message": self.list_policies(command)}
         elif command.command == "allpol":
             return {"type": "message", "message": self.all_policies()}
+        elif command.command == "comptier":
+            return {"type": "message", "message": self.get_tier(command)}
+        elif command.command == "compvalue":
+            return {"type": "message", "message": self.get_value(command)}
 
     def get_commands(self):
-        return {"createcomp", "checkowner", "listcomp", "claim", "invest", "buyshares", "checkshares",
-                "marketconditions", "addpol", "rmpol", "listpol", "allpol"}
+        return {"createcomp", "compowner", "listcomp", "claim", "invest", "buyshares", "checkshares",
+                "mc", "addpol", "rmpol", "listpol", "allpol", "comptier", "compvalue"}
 
     def get_name(self):
         return "Hostile Takeover"
 
     def get_help(self):
-        return "/ \n /"
+        return "/createcomp [company_name] \n /compowner [company_name] \n /listcomp \n /claim [company_name] \n " \
+               "/invest [company_name] [amount] \n /buyshares [company] [person] [amount] \n /checkshares" \
+               "[company_name] \n /mc \n /addpol [company_name] [policy_name] \n /rmpol [company_name] [policy_name]" \
+               "\n /listpol [company_name] \n /allpol \n /comptier [company_name] \n /compvalue [company_name] \n "
 
 
 class Company:
@@ -369,12 +414,18 @@ class Company:
         self.owner = owner
         self.tier = 0
         self.value = 0
-        self.profits = 0
+        self.profits = 1000
         self.paid_today = False
         self.shares = {owner: 100}
         self.policies = []
 
     def add_policy(self, policy):
+        """
+        Adds a policy object to self.policies (up to three at a time)
+        :param policy: policy to be added
+        :return: True if a policy is added
+        """
+
         if len(self.policies) < 3:
             if not self.policies.__contains__(policy):
                 self.policies.append(policy)
@@ -382,13 +433,28 @@ class Company:
             return False
         return False
 
-    def remove_policy(self, policy):
-        if self.policies.__contains__(policy):
-            self.policies.remove(policy)
-            return True
+    def remove_policy(self, policy_name):
+        """
+        Removes a policy object from self.policies
+        :param policy_name: Name of the policy to be removed
+        :return: True if a policy is removed
+        """
+
+        for policy in self.policies:
+            if policy.name == policy_name:
+                self.policies.remove(policy)
+                return True
         return False
 
     def transfer_share(self, buyer, seller, amount):
+        """
+        Moves shares from one person to another
+        :param buyer: name of user to add shares to
+        :param seller: name of user to remove shares from
+        :param amount: amount of shares to move
+        :return: True if shares are successfully transferred
+        """
+
         if self.shares.keys().__contains__(seller):
             if self.shares[seller] >= amount:
                 self.shares[seller] = self.shares[seller] - amount
@@ -399,11 +465,19 @@ class Company:
         return False
 
     def update_owner(self):
+        """
+        Updates the owner of this company if a new user has a majority in the shares owned
+        """
+
         for share_owner in self.shares.keys():
             if self.shares[share_owner] > self.shares[self.owner]:
                 self.owner = share_owner
 
     def update_tier(self):
+        """
+        Updates the tier of this company based on the amount of value it holds
+        """
+
         if 1000 <= self.value < 3000:
             self.tier = 1
         elif 3000 <= self.value < 9000:
@@ -424,6 +498,17 @@ class Company:
             self.tier = 9
         elif 6561000 <= self.value:
             self.tier = 10
+
+    def share_description(self):
+        """
+        A description containing all users that own shares in this company and the amount of shares they own
+        :return: String description containing users that own shares and the amount they own
+        """
+        description = "The following people own shares in this company:\n"
+        for owner in self.shares.keys():
+            description += owner + ": " + str(self.shares[owner])
+
+        return description
 
 
 class Policy:
@@ -453,6 +538,14 @@ class EventManagement:
 
     @staticmethod
     def initialize_json(data_dir, filename):
+        """
+        Loads json for policies and market conditions.
+        Creates a file if one isn't found
+        :param data_dir: directory data is held
+        :param filename: file to be loaded
+        :return: data loaded from json file
+        """
+
         try:
             with open(data_dir + "/data/" + filename + ".json", "r+") as f:
                 data = json.load(f)
@@ -470,18 +563,31 @@ class EventManagement:
                 f.close()
 
     def parse_policies(self, data):
+        """
+        Parses policies from json data into a list of Policy objects
+        :param data: json data to be parsed
+        """
         policies = data["Policies"]
         for policy in policies:
-            modifiers = [policy["Mods"][0]["Mod1"], policy["Mods"][0]["Mod2"], policy["Mods"][0]["Mod3"]]
+            modifiers = [policy["Mods"][0]["Mod1"].lower(), policy["Mods"][0]["Mod2"].lower(),
+                         policy["Mods"][0]["Mod3"].lower()]
             self.policies_list.append(Policy(policy["Name"].lower(), policy["Description"], policy["Default"],
                                              policy["Modded"], modifiers))
 
     def parse_conditions(self, data):
+        """
+        Parses market conditions from json data into a list of MarketCondition objects
+        :param data: json data to be parsed
+        """
+
         conditions = data["Conditions"]
         for condition in conditions:
-            self.conditions_list.append(MarketCondition(condition["Name"], condition["Description"]))
+            self.conditions_list.append(MarketCondition(condition["Name"].lower(), condition["Description"]))
 
     def set_conditions(self):
+        """
+        Sets the current market conditions (picks three conditions from self.conditions_list without replacement)
+        """
         mutable_conditions = list(self.conditions_list)
         drawn_conditions = []
 
@@ -493,6 +599,10 @@ class EventManagement:
         self.current_conditions = drawn_conditions
 
     def condition_descriptions(self):
+        """
+        Creates and organized string containing information on current market conditions)
+        :return: String describing conditions that are in effect
+        """
         description = self.current_conditions[0].name + " : " + self.current_conditions[0].description + "\n" + \
                       self.current_conditions[1].name + " : " + self.current_conditions[1].description + "\n" + \
                       self.current_conditions[2].name + " : " + self.current_conditions[2].description + "\n"

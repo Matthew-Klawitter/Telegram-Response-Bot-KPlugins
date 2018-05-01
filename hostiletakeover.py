@@ -4,6 +4,7 @@ import os
 import pickle
 import random
 import threading
+from time import sleep
 
 from libs.honorbank import HonorBank
 from plugin import Plugin
@@ -16,7 +17,7 @@ def load(data_dir, bot):
 """
 Created by Matthew Klawitter 4/21/2018
 Last Updated: 4/28/2018
-Version: v1.0.1.0
+Version: v1.1.1.0
 """
 
 
@@ -30,9 +31,9 @@ class HostileTakeover(Plugin):
         self.load_companies()
         self.event_management = EventManagement(data_dir)
 
-        timer = threading.Timer(43200, self.generate_conditions())
-        timer.daemon = True
-        timer.start()
+        thread = threading.Thread(target = self.generate_conditions)  # runs for 43200 seconds
+        thread.daemon = True
+        thread.start()
 
     def create_company(self, command):
         """
@@ -358,11 +359,13 @@ class HostileTakeover(Plugin):
         Generates new market conditions and resets company payout.
         """
 
-        self.event_management.set_conditions()
-        for company in self.companies:
-            company.paid_today = False
-            company.profits += company.value
-        self.save_companies()
+        while threading.main_thread().is_alive():
+            self.event_management.set_conditions()
+            for company in self.companies:
+                company.paid_today = False
+                company.profits += company.value
+            self.save_companies()
+            sleep(43200)
 
     def on_command(self, command):
         if command.command == "createcomp":

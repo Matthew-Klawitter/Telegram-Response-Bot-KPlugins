@@ -10,19 +10,20 @@ def load(data_dir, bot):
 
 """
 Created by Matthew Klawitter 12/11/2017
-Last Updated: 12/11/2017
-Version: v1.0.2.2
+Last Updated: 5/5/2017
+Version: v1.1.2.2
 """
 
 
 class HonorBank:
     def __init__(self):
-        self.dir = "honor.json" # NYI
-        self.currency_name = "honor"
+        self.dir = "honor.json"
         self.honor_accounts = {}
         self.load_accounts()
 
     def create_account(self, name):
+        self.load_accounts()
+
         if not self.account_exists(name):
             self.honor_accounts[name] = 0
             self.save_accounts()
@@ -30,12 +31,17 @@ class HonorBank:
         return False
 
     def account_exists(self, name):
+        self.load_accounts()
+
         if name in self.honor_accounts:
             return True
         return False
 
     def remove_account(self, name):
+        self.load_accounts()
+
         del self.honor_accounts[name]
+        self.save_accounts()
 
     def save_accounts(self):
         try:
@@ -59,7 +65,6 @@ class HonorBank:
                 self.honor_accounts = json.load(f)
                 f.seek(0)
                 f.close()
-            print("HonorBank: Accounts successfully loaded!")
             return True
         except FileNotFoundError:
             print("HonorBank: Accounts failed to load!")
@@ -69,16 +74,24 @@ class HonorBank:
             return False
 
     def get_funds(self, name):
+        self.load_accounts()
+
         return self.honor_accounts[name]
 
     def pay(self, name, amount):
+        self.load_accounts()
+
         if amount > 0:
             self.honor_accounts[name] += amount
+            self.save_accounts()
             return True
         return False
 
     def charge(self, name, amount):
+        self.load_accounts()
+
         if self.honor_accounts[name] >= amount:
             self.honor_accounts[name] -= amount
+            self.save_accounts()
             return True
         return False

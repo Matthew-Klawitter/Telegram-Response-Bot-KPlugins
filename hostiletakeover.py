@@ -1,5 +1,4 @@
 import json
-
 import os
 import pickle
 import random
@@ -16,8 +15,8 @@ def load(data_dir, bot):
 
 """
 Created by Matthew Klawitter 4/21/2018
-Last Updated: 4/28/2018
-Version: v1.1.1.0
+Last Updated: 5/4/2018
+Version: v1.1.1.1
 """
 
 
@@ -47,6 +46,7 @@ class HostileTakeover(Plugin):
         if len(commands) == 1:
             if self.get_company(commands[0].lower()) is None and not commands[0] == "":
                 if self.account_manager.charge(command.user.username, startup_cost):
+                    self.account_manager.save_accounts()
                     new_company = Company(commands[0].lower(), command.user.username)
                     self.companies.append(new_company)
                     self.save_companies()
@@ -140,10 +140,12 @@ class HostileTakeover(Plugin):
                 try:
                     company.value += int(commands[1])
                     company.profits += (int(commands[1]) / 5)
-                    self.account_manager.charge(command.user.username, int(commands[1]))
-                    company.update_tier()
-                    self.save_companies()
-                    return "CafeHT: Invested {} into {} company!".format(int(commands[1]), company.name)
+
+                    if self.account_manager.charge(command.user.username, int(commands[1])):
+                        company.update_tier()
+                        self.save_companies()
+                        return "CafeHT: Invested {} into {} company!".format(int(commands[1]), company.name)
+                    return "CafeHT: You do not possess {} honor to invest!".format(int(commands[1]))
                 except ValueError:
                     return "CafeHT: Invalid command format! Please enter /invest [company_name] [amount]"
             return "CafeHT: The company {} does not exist!".format(commands[0])
@@ -165,11 +167,12 @@ class HostileTakeover(Plugin):
                         cost = (company.value / 100) * int(commands[2])
                         if self.account_manager.get_funds(command.user.username) >= cost:
                             if company.transfer_shares(command.user.username, commands[1], int(commands[2])):
-                                self.account_manager.charge(command.user.username, cost)
-                                self.account_manager.pay(commands[1], int(cost * 0.9))
-                                self.save_companies()
-                                return "CafeHT: Transferred shares from {} to {}".format(commands[1],
-                                                                                         command.user.username)
+                                if self.account_manager.charge(command.user.username, cost):
+                                    self.account_manager.pay(commands[1], int(cost * 0.9))
+                                    self.save_companies()
+                                    return "CafeHT: Transferred shares from {} to {}".format(commands[1],
+                                                                                             command.user.username)
+                                return "CafeHT: Unable to transfer shares. Buyer does not have {} honor.".format(cost)
                             return "CafeHT: Unable to transfer shares. They do not possess that amount!"
                         return "CafeHT: Unable to transfer shares. You cannot afford {} honor!".format(cost)
                     return "CafeHT: Unable to transfer shares. This company is not yet public at tier 4."

@@ -46,7 +46,6 @@ class HostileTakeover(Plugin):
         if len(commands) == 1:
             if self.get_company(commands[0].lower()) is None and not commands[0] == "":
                 if self.account_manager.charge(command.user.username, startup_cost):
-                    self.account_manager.save_accounts()
                     new_company = Company(commands[0].lower(), command.user.username)
                     self.companies.append(new_company)
                     self.save_companies()
@@ -370,6 +369,7 @@ class HostileTakeover(Plugin):
             self.save_companies()
             sleep(43200)
 
+    # TODO: Change this to one command input 'ht' with multiple sub commands as params
     def on_command(self, command):
         if command.command == "createcomp":
             return {"type": "message", "message": self.create_company(command)}

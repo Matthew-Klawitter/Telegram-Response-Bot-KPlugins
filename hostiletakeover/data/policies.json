@@ -1,0 +1,264 @@
+{
+    "Policies": [
+        {
+          "Name" : "Ads",
+          "Description" : "You spend more on ads.",
+          "Default" : 0,
+          "Modded" : 0.30,
+          "Mods": [
+            {
+              "Mod1" : "Positive Reaction",
+              "Mod2" : "Hyped Customers",
+              "Mod3" : ""
+            }
+          ]
+        },
+        {
+          "Name" : "CelebrityEndorsements",
+          "Description" : "You try to make others like your product.",
+          "Default" : 0.40,
+          "Modded" : -0.30,
+          "Mods": [
+            {
+              "Mod1" : "Product Recall",
+              "Mod2" : "Pseudo Research",
+              "Mod3" : ""
+            }
+          ]
+        },
+        {
+          "Name" : "Confidentiality",
+          "Description" : "You hide the truth about your products",
+          "Default" : 0.35,
+          "Modded" : -0.20,
+          "Mods": [
+            {
+              "Mod1" : "Company Inspection",
+              "Mod2" : "Employee Riot",
+              "Mod3" : ""
+            }
+          ]
+        },
+        {
+          "Name" : "EmployeeDiscount",
+          "Description" : "You offer your employees a generous discount.",
+          "Default" : 0.05,
+          "Modded" : 0.05,
+          "Mods": [
+            {
+              "Mod1" : "",
+              "Mod2" : "",
+              "Mod3" : ""
+            }
+          ]
+        },
+        {
+          "Name" : "FreeShipping",
+          "Description" : "You help customers afford your products.",
+          "Default" : 0.10,
+          "Modded" : 0.10,
+          "Mods": [
+            {
+              "Mod1" : "",
+              "Mod2" : "",
+              "Mod3" : ""
+            }
+          ]
+        },
+        {
+          "Name" : "GNUApproved",
+          "Description" : "You embrance the production and use of libre software.",
+          "Default" : 0.10,
+          "Modded" : 0.10,
+          "Mods": [
+            {
+              "Mod1" : "",
+              "Mod2" : "",
+              "Mod3" : ""
+            }
+          ]
+        },
+        {
+          "Name" : "Indoctrinate",
+          "Description" : "You use psychology to control the young.",
+          "Default" : 0.65,
+          "Modded" : -0.75,
+          "Mods": [
+            {
+              "Mod1" : "Company Inspection",
+              "Mod2" : "Employee Riot",
+              "Mod3" : "Public Outcry"
+            }
+          ]
+        },
+        {
+          "Name" : "Innovator",
+          "Description" : "You focus your company on innovations.",
+          "Default" : 0.10,
+          "Modded" : 0.75,
+          "Mods": [
+            {
+              "Mod1" : "Innovative Inspiration",
+              "Mod2" : "",
+              "Mod3" : ""
+            }
+          ]
+        },
+        {
+          "Name" : "InsiderTrading",
+          "Description" : "You know when to sell.",
+          "Default" : 0.35,
+          "Modded" : -0.45,
+          "Mods": [
+            {
+              "Mod1" : "Company Inspection",
+              "Mod2" : "",
+              "Mod3" : ""
+            }
+          ]
+        },
+        {
+          "Name" : "NoReturns",
+          "Description" : "You don't allow refunds.",
+          "Default" : 0.20,
+          "Modded" : -0.35,
+          "Mods": [
+            {
+              "Mod1" : "Company Inspection",
+              "Mod2" : "Employee Riot",
+              "Mod3" : "Public Outcry"
+            }
+          ]
+        },
+        {
+          "Name" : "QA",
+          "Description" : "You gurantee the quality of your product.",
+          "Default" : 0.10,
+          "Modded" : 0.50,
+          "Mods": [
+            {
+              "Mod1" : "Product Recall",
+              "Mod2" : "",
+              "Mod3" : ""
+            }
+          ]
+        },
+        {
+          "Name" : "R&D",
+          "Description" : "You put emphasis in research and development.",
+          "Default" : 0.15,
+          "Modded" : 0.30,
+          "Mods": [
+            {
+              "Mod1" : "Innovative Inspiration",
+              "Mod2" : "",
+              "Mod3" : ""
+            }
+          ]
+        },
+        {
+          "Name" : "Casino",
+          "Description" : "You're a gambling man.",
+          "Default" : 0.00,
+          "Modded" : 0.35,
+          "Mods": [
+            {
+              "Mod1" : "Hyped Customers",
+              "Mod2" : "Positive Reaction",
+              "Mod3" : ""
+            }
+          ]
+        },
+        {
+          "Name" : "DataCenter",
+          "Description" : "You host servers and data.",
+          "Default" : 0.25,
+          "Modded" : 0.00,
+          "Mods": [
+            {
+              "Mod1" : "Low Resources",
+              "Mod2" : "Power Outtage",
+              "Mod3" : "Product Surplus"
+            }
+          ]
+        },
+        {
+          "Name" : "EHRSA",
+          "Description" : "You want to help the environment.",
+          "Default" : 0.25,
+          "Modded" : -0.50,
+          "Mods": [
+            {
+              "Mod1" : "Company Inspection",
+              "Mod2" : "Public Outcry",
+              "Mod3" : ""
+            }
+          ]
+        },
+        {
+          "Name" : "FastFood",
+          "Description" : "You advocate the creation of franchises.",
+          "Default" : 0.20,
+          "Modded" : -0.30,
+          "Mods": [
+            {
+              "Mod1" : "Company Inspection",
+              "Mod2" : "Low Resources",
+              "Mod3" : "Product Recall"
+            }
+          ]
+        },
+        {
+          "Name" : "HealthCare",
+          "Description" : "You want to help the wellbeing of others.",
+          "Default" : 0.30,
+          "Modded" : -0.40,
+          "Mods": [
+            {
+              "Mod1" : "Low Resources",
+              "Mod2" : "Pseudo Research",
+              "Mod3" : "Transport Crisis"
+            }
+          ]
+        },
+        {
+          "Name" : "NonProfit",
+          "Description" : "You operate on donations.",
+          "Default" : 0.00,
+          "Modded" : 0.10,
+          "Mods": [
+            {
+              "Mod1" : "Resource Surplus",
+              "Mod2" : "",
+              "Mod3" : ""
+            }
+          ]
+        },
+        {
+          "Name" : "PrivateEdu",
+          "Description" : "You establish a new form of education.",
+          "Default" : 0.00,
+          "Modded" : 0.30,
+          "Mods": [
+            {
+              "Mod1" : "Innovative Inspiration",
+              "Mod2" : "",
+              "Mod3" : ""
+            }
+          ]
+        },
+        {
+          "Name" : "Transport",
+          "Description" : "You focus on transporting goods.",
+          "Default" : 0.20,
+          "Modded" : -0.20,
+          "Mods": [
+            {
+              "Mod1" : "Product Recall",
+              "Mod2" : "Product Surplus",
+              "Mod3" : "Transport Crisis"
+            }
+          ]
+        }
+    ]
+}

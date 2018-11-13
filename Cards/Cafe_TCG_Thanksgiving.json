@@ -1,0 +1,238 @@
+{
+    "Character": [
+        {
+        "Info" :
+            {
+            "Title" : "Happy Turkey Boy",
+            "ID" : "CThanks001",
+            "Set" : "Thanksgiving",
+            "Honor" : 50,
+            "Credibility" : 10,
+            "Description" : "I'm a happy turkey boy!",
+            "Ability" : "Once per game, discard your hand to skip your opponents next turn.",
+            "Faction" : "Pool Party",
+            "URL" : "",
+            "Rarity" : "Uncommon"
+            }
+        },
+        {
+        "Info" :
+            {
+            "Title" : "Cheese Samurai Matt",
+            "ID" : "CThanks001",
+            "Set" : "Thanksgiving",
+            "Honor" : 100,
+            "Credibility" : 20,
+            "Description" : "Honorbound under his 'sharp' sword, de-'brie's cannot stop the 'monetary' destruction he may cause. He is not a 'gouda' samurai.",
+            "Ability" : "Discard a card with credibility 10 or lower to remove a card from play.",
+            "Faction" : "Chaos",
+            "URL" : "",
+            "Rarity" : "Rare"
+            }
+        },
+        {
+        "Info" :
+            {
+            "Title" : "Happy Burger Boy",
+            "ID" : "CThanks001",
+            "Set" : "Thanksgiving",
+            "Honor" : 50,
+            "Credibility" : 5,
+            "Description" : "I'm a happy burger boy!",
+            "Ability" : "Credibility increases by 5 for every 'Pool Party' faction card in play and for every 'Food' card in play.",
+            "Faction" : "Pool Party",
+            "URL" : "",
+            "Rarity" : "Uncommon"
+            }
+        },
+        {
+        "Info" :
+            {
+            "Title" : "Happy Burrito Boy",
+            "ID" : "CThanks001",
+            "Set" : "Thanksgiving",
+            "Honor" : 50,
+            "Credibility" : 10,
+            "Description" : "I'm a happy burrito boy!",
+            "Ability" : "Once per game skip your next turn to draw three cards",
+            "Faction" : "Pool Party",
+            "URL" : "",
+            "Rarity" : "Uncommon"
+            }
+        }
+    ],
+    "Ability": [
+        {
+        "Info" :
+            {
+            "Title" : "Sharing is Caring",
+            "ID" : "AThanks001",
+            "Set" : "Thanksgiving",
+            "Honor" : 100,
+            "Credibility" : 0,
+            "Description" : "It's the Thanksgiving way!",
+            "Ability" : "Every time you draw a 'Gift' card you may immediately play it and draw another card.",
+            "Faction" : "Cafe",
+            "URL" : "",
+            "Rarity" : "Rare"
+            }
+        },
+        {
+        "Info" :
+            {
+            "Title" : "Mob Mentality",
+            "ID" : "AThanks001",
+            "Set" : "Thanksgiving",
+            "Honor" : 25,
+            "Credibility" : 0,
+            "Description" : "A term coined by psychology for following the crowd. See reddit.com",
+            "Ability" : "If a 'Propria-Party' location card is in play, increase the credibility of this card by 30",
+            "Faction" : "Propria-Party",
+            "URL" : "",
+            "Rarity" : "Common"
+            }
+        }
+    ],
+    "Item": [
+        {
+        "Info" :
+            {
+            "Title" : "Cheese Head",
+            "ID" : "IThanks001",
+            "Set" : "Thanksgiving",
+            "Honor" : 25,
+            "Credibility" : 10,
+            "Description" : "The legendary head-gear of a cheese samurai!",
+            "Ability" : "The credibility of cards in your hand increases by 5.",
+            "Faction" : "Chaos",
+            "URL" : "",
+            "Rarity" : "Common"
+            }
+        },
+        {
+        "Info" :
+            {
+            "Title" : "Mejier Rotisserie Chicken",
+            "ID" : "IThanks001",
+            "Set" : "Thanksgiving",
+            "Honor" : 200,
+            "Credibility" : 20,
+            "Description" : "The unholy union of ying and yang that may act as a replacement for a spoiled turkey.",
+            "Ability" : "All 'food-based' cards that do not contain this cards faction must be removed from play.",
+            "Faction" : "FOSS/Pool Party",
+            "URL" : "",
+            "Rarity" : "Ultra-Rare"
+            }
+        },
+        {
+        "Info" :
+            {
+            "Title" : "Holiday Homework",
+            "ID" : "IThanks001",
+            "Set" : "Thanksgiving",
+            "Honor" : 25,
+            "Credibility" : 0,
+            "Description" : "The absolute worst.",
+            "Ability" : "If a 'Cafe' faction location is in play, remove it from play.",
+            "Faction" : "Wildcard",
+            "URL" : "",
+            "Rarity" : "Common"
+            }
+        },
+        {
+        "Info" :
+            {
+            "Title" : "Stuffing",
+            "ID" : "IThanks001",
+            "Set" : "Thanksgiving",
+            "Honor" : 25,
+            "Credibility" : 15,
+            "Description" : "Arguably the spirit of 'Thanksgiving'",
+            "Ability" : "Remove from play to draw a 'Location' card from your deck and then shuffle your deck.",
+            "Faction" : "Wildcard",
+            "URL" : "",
+            "Rarity" : "Common"
+            }
+        }
+    ],
+    "Location": [
+        {
+        "Info" :
+            {
+            "Title" : "Thanksgiving Dinner",
+            "ID" : "LThanks001",
+            "Set" : "Thanksgiving",
+            "Honor" : 200,
+            "Credibility" : 0,
+            "Description" : "Happy Turkey day!",
+            "Ability" : "All cards in play are considered 'Food' cards",
+            "Faction" : "Cafe",
+            "URL" : "",
+            "Rarity" : "Ultra-Rare"
+            }
+        },
+        {
+        "Info" :
+            {
+            "Title" : "Thanksgiving Break",
+            "ID" : "LThanks001",
+            "Set" : "Thanksgiving",
+            "Honor" : 50,
+            "Credibility" : 0,
+            "Description" : "A nice break that taunts you from the real deal.",
+            "Ability" : "Select a faction, this card becomes that faction.",
+            "Faction" : "None",
+            "URL" : "",
+            "Rarity" : "Uncommon"
+            }
+        },
+        {
+        "Info" :
+            {
+            "Title" : "Black Friday",
+            "ID" : "LThanks001",
+            "Set" : "Thanksgiving",
+            "Honor" : 100,
+            "Credibility" : 0,
+            "Description" : "A holiday of remembrance in which morals were massacred by consumeristic ideals.",
+            "Ability" : "Changes the factions of cards in play to 'Propria-Party' and doubles their credibility",
+            "Faction" : "Propria-Party",
+            "URL" : "",
+            "Rarity" : "Rare"
+            }
+        },
+        {
+        "Info" :
+            {
+            "Title" : "White Castle",
+            "ID" : "LThanks001",
+            "Set" : "Thanksgiving",
+            "Honor" : 100,
+            "Credibility" : 0,
+            "Description" : "The antithesis of a 'Thanksgiving' dinner and where despair consumes all. Often delays trips to more important locations. Known for their numerous, really tiny, frozen burgers.",
+            "Ability" : "All food cards in play are doubled. Cannot be removed.",
+            "Faction" : "Propria-Party/Pool Party",
+            "URL" : "",
+            "Rarity" : "Rare"
+            }
+        },
+        {
+        "Info" :
+            {
+            "Title" : "Family Gathering",
+            "ID" : "LThanks001",
+            "Set" : "Thanksgiving",
+            "Honor" : 25,
+            "Credibility" : 0,
+            "Description" : "A place loved and feared by many.",
+            "Ability" : "'Cafe' faction cards have their credibility increased by 5",
+            "Faction" : "Cafe",
+            "URL" : "",
+            "Rarity" : "Common"
+            }
+        }
+    ],
+    "Argument": [
+        
+    ]
+}

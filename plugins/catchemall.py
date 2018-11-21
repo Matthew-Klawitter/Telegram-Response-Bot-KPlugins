@@ -20,7 +20,7 @@ def load(data_dir, bot):
 """
 Created by Matthew Klawitter 11/19/2018
 Last Updated: 11/21/2018
-Version: v2.0.0.0
+Version: v2.0.0.1
 """
 
 
@@ -125,7 +125,7 @@ class CatchEmAll(Plugin):
     # Randomly creates a pokemon encounter and alerts all available chat channels
     def encounter(self):
         while threading.main_thread().is_alive():
-            spawn_time = random.randint(10,20) # 1200,3600
+            spawn_time = random.randint(1200,3600)
 
             if self.encounter_exists:
                 self.encounter_exists = False

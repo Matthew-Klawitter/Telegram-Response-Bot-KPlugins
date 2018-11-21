@@ -73,6 +73,7 @@ class CatchEmAll(Plugin):
         
             for pokemon in bank:
                 message += str(index) + ": " + pokemon.name + "| cp: " + str(pokemon.cp) + "\n"
+                index += 1
             return message
         return "Catch em' All: You do not possess an account!"
 
@@ -84,9 +85,9 @@ class CatchEmAll(Plugin):
             user = command.user.username
 
             if self.poke_bank.user_exists(user):
-                poke = self.poke_bank.get_mon(int(commands[0])
+                poke = self.poke_bank.get_mon(user, int(commands[0]))
                 if not poke == None:
-                    self.poke_bank.remove_mon(poke)
+                    self.poke_bank.remove_mon(user, int(commands[0]))
                     return "Catch em' All: You have released your {} (cp:{})... goodbye...".format(poke.name, str(poke.cp))
                 return "Catch em' All: The location you specified does not exist!"
             return "Catch em' All: You do not possess an account!"
@@ -100,7 +101,7 @@ class CatchEmAll(Plugin):
             user = command.user.username
 
             if self.poke_bank.user_exists(user):
-                poke = self.poke_bank.get_mon(int(commands[0])
+                poke = self.poke_bank.get_mon(user, int(commands[0]))
                 if not poke == None:
                     return poke.__str__()
                 return "Catch em' All: The location you specified does not exist!"
@@ -109,6 +110,7 @@ class CatchEmAll(Plugin):
 
     # Admin command to grant pokemon to specific users
     def com_grant(self, command):
+        user = command.user.username
         commands = command.args.split(" ")
 
         if len(commands) == 2: 
@@ -199,7 +201,7 @@ class PokeBank:
     # Removes and returns a pokemon from a users bank given its location
     # Returns None if the location is out of bounds
     def remove_mon(self, user, location):
-        if location >= len(self.bank[user]):
+        if location < len(self.bank[user]):
             poke = self.bank[user].pop(location)
             self.save()
             return poke
@@ -208,7 +210,7 @@ class PokeBank:
     # Returns a pokemon obj from the specified location within the list should it exist
     # Returns None if the location is out of bounds
     def get_mon(self, user, location):
-        if location >= len(self.bank[user]):
+        if location < len(self.bank[user]):
             poke = self.bank[user][location]
             return poke
         return None
@@ -283,7 +285,9 @@ class PokemonManager:
 
     # Returns a newly randomly generated pokemon
     def generate_pokemon(self):
-        poke = random.choice(self.pokemon.keys())
+        keys = list(self.pokemon.keys())
+        key = random.choice(keys)
+        poke = self.pokemon[key]
         return Pokemon(poke["name"], poke["base_atk"], poke["base_def"], poke["base_hp"])
 
     # Returns a specified newly generated pokemon
@@ -311,7 +315,7 @@ class Pokemon:
         # Int XP the pokemon currently posseses (resets at 100 xp)
         self.xp = 0
         # Float CP Multiplier
-        self.cp_multi = self.level / 100
+        self.cp_multi = (self.level / 100)
         # Int Combat Power the pokemon posesses (based off its stats)
         self.cp = 0
 
@@ -321,23 +325,23 @@ class Pokemon:
 
     # Adds some noise to distinct pokemon attributes
     def add_iv_noise(self):
-        self.attack = int((self.attack + random.randint(0,15))) * self.cp_multi
-        self.defence = int((self.defence + random.randint(0,15))) * self.cp_multi
-        self.max_hp = int((self.max_hp + random.randint(0,15))) * self.cp_multi
+        self.attack = int((self.attack + random.randint(0,15)) + self.attack * self.cp_multi)
+        self.defence = int((self.defence + random.randint(0,15)) + self.defence * self.cp_multi)
+        self.max_hp = int((self.max_hp + random.randint(0,15)) + self.max_hp * self.cp_multi)
         self.current_hp = self.max_hp
 
     # Run every level up to adjust stats
     def update_stats(self):
-        self.attack *= self.cp_multi
-        self.defence *= self.cp_multi
-        self.max_hp *= self.cp_multi
+        self.attack += random.randint(0,3) + (self.attack * self.cp_multi)
+        self.defence += random.randint(0,3) + (self.defence * self.cp_multi)
+        self.max_hp += random.randint(0,3) + (self.max_hp * self.cp_multi)
         self.xp = self.xp % 100
         self.level += 1
         self.calculate_cp()
 
     # Calculates the combat power of the pokemon
     def calculate_cp(self):
-        self.cp = int((self.attack * (self.defence**.05) * (self.max_hp**.05) * (self.cp_multi**2)) / 10)
+        self.cp = int((self.attack * (self.defence**.5) * (self.max_hp**.5) * (self.cp_multi)) / 10)
 
     # Increases xp of this pokemon by the provided amount and checks for a level up
     def grant_xp(self, amount):

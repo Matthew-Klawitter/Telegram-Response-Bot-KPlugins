@@ -85,6 +85,8 @@ class CatchEmAll(Plugin):
             user = command.user.username
 
             if self.poke_bank.user_exists(user):
+                if int(commands[0]) < 0:
+                    return "Catch em' All: Please enter a positive index value!"
                 poke = self.poke_bank.get_mon(user, int(commands[0]))
                 if not poke == None:
                     self.poke_bank.remove_mon(user, int(commands[0]))
@@ -101,6 +103,8 @@ class CatchEmAll(Plugin):
             user = command.user.username
 
             if self.poke_bank.user_exists(user):
+                if int(commands[0]) < 0:
+                    return "Catch em' All: Please enter a positive index value!"
                 poke = self.poke_bank.get_mon(user, int(commands[0]))
                 if not poke == None:
                     return poke.__str__()

@@ -139,6 +139,7 @@ class CatchEmAll(Plugin):
                     self.bot.send_message(channel, "Catch em' All: A wild " + self.current_encounter.name + " appeared!")
             sleep(spawn_time)
 
+    # Run whenever someone on telegram types one of these commands
     def on_command(self, command):
         if command.command == "poke_enable":
             if command.chat.id in self.channels:
@@ -163,12 +164,15 @@ class CatchEmAll(Plugin):
         elif command.command == "poke_grant":
             return {"type": "message", "message": self.com_grant(command)}
 
+    # Commands that are enabled on the server. These are what triggers actions on this plugin
     def get_commands(self):
         return {"poke_enable", "poke_disable", "catch", "poke_list", "poke_release", "poke_stat", "poke_grant"}
 
+    # Returns the name of the plugin
     def get_name(self):
         return "Catch em' All"
 
+    # Run whenever someone types /help catchemall
     def get_help(self):
         return "'/poke_enable' to enable alerts in this channel \n,\
                 '/poke_disable' to disable alerts in this channel\n,\
@@ -178,6 +182,8 @@ class CatchEmAll(Plugin):
                 'poke_stat [bank_id] to view stats on a pokemon you've caught\n,\
                 'poke_grant [user] [pokemon] admin command to grant pokemon"
 
+
+# Class that handles all operations involving saving and accessing pokemon for individual users
 class PokeBank:
     def __init__(self, dir):
         # String containing the directory of the plugin config
@@ -253,6 +259,8 @@ class PokeBank:
                 f.close()
             print("Catch em' All: No PokeBank file exists, creating a new one.")
 
+
+# Manages and generates pokemon
 class PokemonManager:
     def __init__(self, dir):
         self.dir = dir
@@ -296,6 +304,7 @@ class PokemonManager:
         return Pokemon(poke["name"], poke["base_atk"], poke["base_def"], poke["base_hp"])
 
 
+# Stores information on a specific pokemon and handles initial generation and increases in stats
 class Pokemon:
     def __init__(self, poke_name, base_atk, base_def, base_hp):
         # String Name of the pokemon

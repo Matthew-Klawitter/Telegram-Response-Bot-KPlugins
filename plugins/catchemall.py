@@ -86,7 +86,7 @@ class CatchEmAll(Plugin):
 
             if self.poke_bank.user_exists(user):
                 if int(commands[0]) < 0:
-                    return "Catch em' All: Please enter a positive index value!"
+                    return "Catch em' All: Please enter a non-negative index value!"
                 poke = self.poke_bank.get_mon(user, int(commands[0]))
                 if not poke == None:
                     self.poke_bank.remove_mon(user, int(commands[0]))
@@ -104,13 +104,37 @@ class CatchEmAll(Plugin):
 
             if self.poke_bank.user_exists(user):
                 if int(commands[0]) < 0:
-                    return "Catch em' All: Please enter a positive index value!"
+                    return "Catch em' All: Please enter a non-negative index value!"
                 poke = self.poke_bank.get_mon(user, int(commands[0]))
                 if not poke == None:
                     return poke.__str__()
                 return "Catch em' All: The location you specified does not exist!"
             return "Catch em' All: You do not possess an account!"
         return "Catch em' All: Invalid syntax - use /poke_stat [bank_id]"
+
+    # A simple implementation of trading
+    def com_trade(self, command):
+        user = command.user.username
+        commands = command.args.split(" ")
+
+        if len(commands) == 2: 
+            receiver = commands[0]
+            bank_index = commands[1]
+
+            try:
+                bank_index = int(bank_index)
+            except ValueError:
+                return "Catch em' All: Invalid syntax - [bank_id] must be an integer!" 
+
+            if self.poke_bank.user_exists(receiver):
+                poke = self.poke_bank.remove_mon(user, int(bank_index))
+                
+                if not poke == None:
+                    self.poke_bank.store_mon(receiver, poke)
+                    return "Catch em' All: Traded {} to {}!".format(poke.name, receiver)
+                return "Catch em' All: The specified pokemon does not exist in your bank!"
+            return "Catch em' All: The specified receiver does not have a bank"
+        return "Catch em' All: Invalid syntax - use /poke_trade [user] [bank_id]"
 
     # Admin command to grant pokemon to specific users
     def com_grant(self, command):
@@ -165,12 +189,14 @@ class CatchEmAll(Plugin):
             return {"type": "message", "message": self.com_release(command)}
         elif command.command == "poke_stat":
             return {"type": "message", "message": self.com_stat(command)}
+        elif command.command == "poke_trade":
+            return {"type": "message", "message": self.com_trade(command)}
         elif command.command == "poke_grant":
             return {"type": "message", "message": self.com_grant(command)}
 
     # Commands that are enabled on the server. These are what triggers actions on this plugin
     def get_commands(self):
-        return {"poke_enable", "poke_disable", "catch", "poke_list", "poke_release", "poke_stat", "poke_grant"}
+        return {"poke_enable", "poke_disable", "catch", "poke_list", "poke_release", "poke_stat", "poke_trade", "poke_grant"}
 
     # Returns the name of the plugin
     def get_name(self):
@@ -184,6 +210,7 @@ class CatchEmAll(Plugin):
                 '/poke_list' to see pokemon you've caught and their bank location\n,\
                 'poke_release [bank_id]' to release a pokemon you've caught\n,\
                 'poke_stat [bank_id] to view stats on a pokemon you've caught\n,\
+                'poke_trade [receiver] [bank_id] to trade a pokemon you own\n,\
                 'poke_grant [user] [pokemon] admin command to grant pokemon"
 
 
@@ -208,7 +235,7 @@ class PokeBank:
             self.bank[user].append(pokemon)
             self.save()
 
-    # Removes and returns a pokemon from a users bank given its location
+    # Removes and returns a pokemon obj from a users bank given its location
     # Returns None if the location is out of bounds
     def remove_mon(self, user, location):
         if location < len(self.bank[user]):

@@ -171,11 +171,10 @@ class CatchEmAll(Plugin):
                 else:
                     return "Catch em' All: Failed! One or more pokemon do not exist in your bank!"
 
-                if self.battle_manager.form_party(user, poke_list):
-                    return "Catch em' All: Successfully created the party!"
-                return "Catch em' All: Failed to created the party! Pokemon specified must be between 0 and 6!"
-        else:
-            return "Catch em' All: Invalid syntax - use /poke_form_party [id1,id2,id3,etc.]"
+            if self.battle_manager.form_party(user, poke_list):
+                return "Catch em' All: Successfully created the party!"
+            return "Catch em' All: Failed to created the party! Pokemon specified must be between 0 and 6!"
+        return "Catch em' All: Invalid syntax - use /poke_form_party [id1,id2,id3,etc.]"
         
 
     # Views a user's currently set pokemon party
@@ -194,6 +193,7 @@ class CatchEmAll(Plugin):
             if self.battle_manager.post_battle(user, opponent):
                 response = "Catch em' All: Successfully posted a request to battle {}!\n".format(opponent)
                 response += "{} you can use '/poke_accept_battle {}' to accept the battle!".format(opponent, user)
+                return response
             return "Catch em' All: Unable to create battle! You have already posted an existing battle"
         return "Catch em' All: Invalid syntax - use /poke_post [opponent_name]"
 

@@ -62,11 +62,35 @@ class CatchEmAll(Plugin):
         if self.current_encounter == None:
             return "Catch em' All: Sorry " + user + ", you missed your chance!"
 
-        self.poke_bank.store_mon(user, self.current_encounter)
-        poke = self.current_encounter
-        self.current_encounter = None
-        self.encounter_exists = False
+        poke = self.current_encounter.pop(0)
+        self.poke_bank.store_mon(user, poke)
+
+        if len(self.current_encounter) == 0:
+            self.current_encounter = None
+            self.encounter_exists = False
         return "Catch em' All: Congrats " + user + " you caught {} (cp:{})!".format(poke.name, str(poke.cp))
+
+    def com_fight(self, command):
+        user = command.user.username
+
+        if not self.encounter_exists:
+            return "Catch em' All: There is no encounter, check back later!"
+
+        if self.current_encounter == None:
+            return "Catch em' All: Sorry " + user + ", you missed your chance!"
+
+        if self.battle_manager.has_party(user):
+            battle = Battle(user, "Wild Pokemon")
+            party = self.battle_manager.get_party(user)
+
+            response = battle.simulate_battle(party, self.current_encounter)
+            self.current_encounter = None
+            self.encounter_exists = False
+            self.battle_manager.heal_party(party)
+            self.poke_bank.save()
+
+            return response + "\n\nRemaining wild pokemon fled!"
+        return "Catch em' All: You have not made a party!"
 
     # Lists all pokemon within a user's pokemon bank (dict) should they exist
     def com_list(self, command):
@@ -222,19 +246,29 @@ class CatchEmAll(Plugin):
 
     # Randomly creates a pokemon encounter and alerts all available chat channels
     def encounter(self):
+        sleep(10)
         while threading.main_thread().is_alive():
-            spawn_time = random.randint(1200,3600)
+            spawn_time = random.randint(300,2400)
 
             if self.encounter_exists:
                 self.encounter_exists = False
                 self.current_encounter = None
                 for channel in self.channels:
-                    self.bot.send_message(channel, "Catch em' All: Aw, it got away!")
+                    self.bot.send_message(channel, "Catch em' All: Aw, the pokemon got away!")
             else:
-                self.current_encounter = self.poke_manager.generate_pokemon()
+                rand_spawn = random.randint(1,3)
+                response = "Catch em' All: The following wild pokemon appeared:\n"
+                spawns = []
+
+                for x in range(rand_spawn):
+                    poke = self.poke_manager.generate_pokemon()
+                    response += "{} (cp:{})\n".format(poke.name, str(poke.cp))
+                    spawns.append(poke)
+
+                self.current_encounter = spawns
                 self.encounter_exists = True
                 for channel in self.channels:
-                    self.bot.send_message(channel, "Catch em' All: A wild " + self.current_encounter.name + " appeared!")
+                    self.bot.send_message(channel, response)
             sleep(spawn_time)
 
     # Determines if a user missed a catch :B1:
@@ -258,6 +292,8 @@ class CatchEmAll(Plugin):
                 return {"type": "message", "message": "Encounters have not been enabled for this channel."}
         elif command.command == "catch":
             return {"type": "message", "message": self.com_catch(command)}
+        elif command.command == "fight":
+            return {"type": "message", "message": self.com_fight(command)}
         elif command.command == "poke_list":
             return {"type": "message", "message": self.com_list(command)}
         elif command.command == "poke_release":
@@ -281,7 +317,7 @@ class CatchEmAll(Plugin):
 
     # Commands that are enabled on the server. These are what triggers actions on this plugin
     def get_commands(self):
-        return {"poke_enable", "poke_disable", "catch", "poke_list", "poke_release", "poke_stat",\
+        return {"poke_enable", "poke_disable", "catch", "fight", "poke_list", "poke_release", "poke_stat",\
                 "poke_trade", "poke_grant", "poke_form_party", "poke_view_party", "poke_post",\
                 "poke_rm_post", "poke_accept_battle"}
 
@@ -294,16 +330,17 @@ class CatchEmAll(Plugin):
         return "'/poke_enable' to enable alerts in this channel \n,\
                 '/poke_disable' to disable alerts in this channel\n,\
                 '/catch' to catch a pokemon \n,\
+                '/fight' to fight the current encounter \n,\
                 '/poke_list' to see pokemon you've caught and their bank location\n,\
-                'poke_release [bank_id]' to release a pokemon you've caught\n,\
-                'poke_stat [bank_id] to view stats on a pokemon you've caught\n,\
-                'poke_trade [receiver] [bank_id] to trade a pokemon you own\n,\
-                'poke_grant [user] [pokemon] admin command to grant pokemon\n,\
-                'poke_form_party [id1,id2,id3,etc.] to create a pokemon party\n,\
-                'poke_view_party to view a created pokemon party\n,\
-                'poke_post [opponent_name]\n,\
-                'poke_rm_post\n,\
-                'poke_accept_battle [challenger_name]"
+                '/poke_release [bank_id]' to release a pokemon you've caught\n,\
+                '/poke_stat [bank_id] to view stats on a pokemon you've caught\n,\
+                '/poke_trade [receiver] [bank_id] to trade a pokemon you own\n,\
+                '/poke_grant [user] [pokemon] admin command to grant pokemon\n,\
+                '/poke_form_party [id1,id2,id3,etc.] to create a pokemon party\n,\
+                '/poke_view_party to view a created pokemon party\n,\
+                '/poke_post [opponent_name]\n,\
+                '/poke_rm_post\n,\
+                '/poke_accept_battle [challenger_name]"
 
 
 # Manages pokemon battles and records information on records
@@ -336,6 +373,12 @@ class BattleManager:
                 response += "{} | cp:{}\n".format(poke.name, str(poke.cp))
             return response
         return "Catch em' All: You have not made a party!"
+
+    # Returns a list containing a user's Pokemon party
+    def get_party(self, user):
+        if self.has_party(user):
+            return self.parties[user]
+        return None
 
     # Posts a request to battle an opponent
     # Only one battle request can be created per user at any given time

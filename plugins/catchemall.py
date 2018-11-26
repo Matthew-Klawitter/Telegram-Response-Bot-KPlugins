@@ -422,7 +422,8 @@ class Battle:
                     
                     current_defender.current_hp -= damage
                     battle_log += "{} deals {} to {}!\n".format(current_attacker.name, str(damage), current_defender.name)
-                battle_log += "{} managed to dodge {}'s attack!\n".format(current_attacker.name, current_defender.name)
+                else:
+                    battle_log += "{} managed to dodge {}'s attack!\n".format(current_attacker.name, current_defender.name)
 
                 temp = current_attacker
                 current_defender = current_attacker
@@ -445,7 +446,7 @@ class Battle:
 
             battle_log += "{} has {} pokemon left, while {} has {} pokemon left!\n\n".format(self.challenger, int(len(challenger_party)), self.opponent, int(len(opponent_party)))
 
-        if len(challenger_party > 0):
+        if opponent_index == len(opponent_party):
             winner = self.challenger
             battle_log += "{} is out of usable pokemon! They blacked out!".format(self.opponent)
         else:

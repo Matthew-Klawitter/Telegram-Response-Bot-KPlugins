@@ -190,6 +190,9 @@ class CatchEmAll(Plugin):
         if len(commands) == 1:
             opponent = commands[0]
 
+            #if user == opponent:
+                #return "Catch em' All: You cannot battle yourself!"
+
             if self.battle_manager.post_battle(user, opponent):
                 response = "Catch em' All: Successfully posted a request to battle {}!\n".format(opponent)
                 response += "{} you can use '/poke_accept_battle {}' to accept the battle!".format(opponent, user)
@@ -390,8 +393,8 @@ class Battle:
 
     # Simulates a pokemon battle between two parties
     def simulate_battle(self, challenger_party, opponent_party):
-        challenge_cp = self.average_cp(challenger_party)
-        opponent_cp = self.average_cp(opponent_party)
+        challenge_cp = int(self.average_cp(challenger_party))
+        opponent_cp = int(self.average_cp(opponent_party))
         challenge_index = 0
         opponent_index = 0
 
@@ -400,14 +403,15 @@ class Battle:
 
         if challenge_cp > opponent_cp:
             battle_log += "The expected winner is {}".format(self.challenger)
-        battle_log += "The expected winner is {}".format(self.opponent)
+        else:
+            battle_log += "The expected winner is {}".format(self.opponent)
 
         while challenge_index < len(challenger_party) and opponent_index < len(opponent_party):
             challenge_mon = challenger_party[challenge_index]
             opponent_mon = opponent_party[opponent_index]
             battle_log += "{} sends out {}, while {} sends out {}!\n".format(self.challenger, challenge_mon.name, self.opponent, opponent_mon.name)
 
-            current_attacker, current_defender = self.compare_cp(challenge_cp, opponent_mon)
+            current_attacker, current_defender = self.compare_cp(challenge_mon, opponent_mon)
 
             while challenge_mon.current_hp > 0 and opponent_mon.current_hp > 0:
                 if not self.check_dodge():

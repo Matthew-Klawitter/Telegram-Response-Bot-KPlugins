@@ -221,17 +221,21 @@ class BattleManager:
         self.parties = {}
         self.battles = {}
 
+    # Stores a pokemon party within the dict self.parties, only one party per user
+    # Sets the value in the dictionary to a list of 1 to 6 pokemon
     def form_party(self, user, poke_list):
         if 0 < len(poke_list) < 6:
             self.parties[user] = poke_list
             return True
         return False
 
+    # Returns true if the specified user has created a party
     def has_party(self, user):
         if user in self.parties.keys():
             return True
         return False
 
+    # Returns a string containing all pokemon within a created party if it exists
     def view_party(self, user):
         if self.has_party(user):
             response = "Catch em' All: Here is your current party {}:\n".format(user)
@@ -241,18 +245,27 @@ class BattleManager:
             return response
         return "Catch em' All: You have not made a party!"
 
+    # Posts a request to battle an opponent
+    # Only one battle request can be created per user at any given time
     def post_battle(self, user, opponent, channel_id):
         if not user in self.battles.keys():
             self.battles[user] = Battle(user, opponent, channel_id)
             return True
         return False
 
+    # Removes a request to battle an opponent
     def remove_battle(self, user):
         if user in self.battles.keys():
             self.battles.pop(user, None)
             return True
         return False
 
+    # Restores a pokemon party to full health
+    def heal_party(self, party):
+        for poke in party:
+            poke.current_hp = poke.max_hp
+
+    # A user accepts a battle request and the battle is then simulated
     def accept_battle(self, user, opponent):
         if opponent in self.battles.keys():
             battle = self.battles[opponent]
@@ -264,12 +277,18 @@ class BattleManager:
                 # The user who accepted the battle
                 opponent_party = self.parties[user]
                 # Simulate battle
-                results = battle.simulate_battle(challenger_party, opponent_party)
-                self.parties.pop(opponent) # Fix this tomorrow so parties remain consistent
-                self.parties.pop(user)
-                return results
-            return "Catch em' All: You are not the opponent for this battle!"
-        return "Catch em' All: A battle with that challenger does not exist!"
+                winner, log = battle.simulate_battle(challenger_party, opponent_party)
+
+                # Heal both parties
+                self.heal_party(challenger_party)
+                self.heal_party(opponent_party)
+
+                # Remove the battle
+                self.battles.pop(opponent)
+
+                return [winner, log]
+            return ["Catch em' All: You are not the opponent for this battle!"]
+        return ["Catch em' All: A battle with that challenger does not exist!"]
 
 # Holds information on battles and simulates them
 # challenger is the user who created the battle
@@ -281,10 +300,12 @@ class Battle:
         self.opponent = opponent
         self.channel = channel
 
-    # TODO: Change so it doesn't pop fainted pokemon out of the list, but increments an index to the next pokemon. When the index == len for one of the users the battle is over
+    # Simulates a pokemon battle between two parties
     def simulate_battle(self, challenger_party, opponent_party):
         challenge_cp = self.average_cp(challenger_party)
         opponent_cp = self.average_cp(opponent_party)
+        challenge_index = 0
+        opponent_index = 0
 
         winner = None
         battle_log = "The battle between {} and {} commences!\n"
@@ -293,9 +314,9 @@ class Battle:
             battle_log += "The expected winner is {}".format(self.challenger)
         battle_log += "The expected winner is {}".format(self.opponent)
 
-        while len(challenger_party) > 0 and len(opponent_party) > 0:
-            challenge_mon = challenger_party[0]
-            opponent_mon = opponent_party[0]
+        while challenge_index < len(challenger_party) and opponent_index < len(opponent_party):
+            challenge_mon = challenger_party[challenge_index]
+            opponent_mon = opponent_party[opponent_index]
             battle_log += "{} sends out {}, while {} sends out {}!\n".format(self.challenger, challenge_mon.name, self.opponent, opponent_mon.name)
 
             current_attacker, current_defender = self.compare_cp(challenge_cp, opponent_mon)
@@ -317,14 +338,14 @@ class Battle:
             
             if challenge_mon.current_hp <= 0:
                 challenge_mon.current_hp = challenge_mon.max_hp
-                challenger_party.pop(0)
+                challenge_index += 1
                 battle_log += "{}'s {} fainted! {} gained 25 xp!".format(self.challenger, challenge_mon.name, opponent_mon.name)
             
                 if opponent_mon.grant_xp(25):
                     battle_log += "Woah! {}'s {} leveled up!\n".format(self.opponent, opponent_mon.name)
             else:
                 opponent_mon.current_hp = opponent_mon.max_hp
-                opponent_party.pop(0)
+                opponent_index += 1
                 battle_log += "{}'s {} fainted! {} gained 25 xp!".format(self.opponent, opponent_mon.name, challenge_mon.name)
                 
                 if challenge_mon.grant_xp(25):
@@ -341,7 +362,7 @@ class Battle:
 
         battle_log += "The battle has concluded! {} is the winner!".format(winner)
         
-        return {"winner" : winner, "log" : battle_log}
+        return winner, battle_log
 
     def average_cp(self, party):
         total_cp = 0

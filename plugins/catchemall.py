@@ -162,8 +162,8 @@ class CatchEmAll(Plugin):
 
         if 0 < len(commands) <= 6:
             poke_list = []
-
-            for index in commands:
+            
+            for index in list(set(commands)):
                 poke = self.poke_bank.get_mon(user, int(index))
 
                 if not poke == None:
@@ -190,8 +190,8 @@ class CatchEmAll(Plugin):
         if len(commands) == 1:
             opponent = commands[0]
 
-            #if user == opponent:
-                #return "Catch em' All: You cannot battle yourself!"
+            if user == opponent:
+                return "Catch em' All: You cannot battle yourself!"
 
             if self.battle_manager.post_battle(user, opponent):
                 response = "Catch em' All: Successfully posted a request to battle {}!\n".format(opponent)
@@ -215,8 +215,9 @@ class CatchEmAll(Plugin):
 
         if len(commands) == 1:
             challenger = commands[0]
-
-            return self.battle_manager.accept_battle(user, challenger)
+            response = self.battle_manager.accept_battle(user, challenger)
+            self.poke_bank.save()
+            return response
         return "Catch em' All: Invalid syntax - use /poke_accept_battle [challenger_name]"
 
     # Randomly creates a pokemon encounter and alerts all available chat channels
@@ -315,7 +316,7 @@ class BattleManager:
     # Stores a pokemon party within the dict self.parties, only one party per user
     # Sets the value in the dictionary to a list of 1 to 6 pokemon
     def form_party(self, user, poke_list):
-        if 0 < len(poke_list) < 6:
+        if 0 < len(poke_list) <= 6:
             self.parties[user] = poke_list
             return True
         return False
@@ -399,12 +400,12 @@ class Battle:
         opponent_index = 0
 
         winner = None
-        battle_log = "The battle between {} and {} commences!\n"
+        battle_log = "The battle between {} and {} commences!\n".format(self.challenger, self.opponent)
 
         if challenge_cp > opponent_cp:
-            battle_log += "The expected winner is {}".format(self.challenger)
+            battle_log += "The expected winner is {}\n".format(self.challenger)
         else:
-            battle_log += "The expected winner is {}".format(self.opponent)
+            battle_log += "The expected winner is {}\n".format(self.opponent)
 
         while challenge_index < len(challenger_party) and opponent_index < len(opponent_party):
             challenge_mon = challenger_party[challenge_index]
@@ -415,43 +416,43 @@ class Battle:
 
             while challenge_mon.current_hp > 0 and opponent_mon.current_hp > 0:
                 if not self.check_dodge():
-                    damage = current_attacker.cp
+                    damage = current_attacker.cp * random.randint(4,6)
 
                     if self.check_crit():
-                        damage *= 3
+                        damage *= 2
                     
                     current_defender.current_hp -= damage
                     battle_log += "{} deals {} to {}!\n".format(current_attacker.name, str(damage), current_defender.name)
                 else:
                     battle_log += "{} managed to dodge {}'s attack!\n".format(current_attacker.name, current_defender.name)
 
-                temp = current_attacker
+                temp = current_defender
                 current_defender = current_attacker
                 current_attacker = temp
             
             if challenge_mon.current_hp <= 0:
                 challenge_mon.current_hp = challenge_mon.max_hp
                 challenge_index += 1
-                battle_log += "{}'s {} fainted! {} gained 25 xp!".format(self.challenger, challenge_mon.name, opponent_mon.name)
+                battle_log += "{}'s {} fainted! {} gained 25 xp!\n".format(self.challenger, challenge_mon.name, opponent_mon.name)
             
                 if opponent_mon.grant_xp(25):
                     battle_log += "Woah! {}'s {} leveled up!\n".format(self.opponent, opponent_mon.name)
             else:
                 opponent_mon.current_hp = opponent_mon.max_hp
                 opponent_index += 1
-                battle_log += "{}'s {} fainted! {} gained 25 xp!".format(self.opponent, opponent_mon.name, challenge_mon.name)
+                battle_log += "{}'s {} fainted! {} gained 25 xp!\n".format(self.opponent, opponent_mon.name, challenge_mon.name)
                 
                 if challenge_mon.grant_xp(25):
                     battle_log += "Woah! {}'s {} leveled up!\n".format(self.challenger, challenge_mon.name)
 
-            battle_log += "{} has {} pokemon left, while {} has {} pokemon left!\n\n".format(self.challenger, int(len(challenger_party)), self.opponent, int(len(opponent_party)))
+            battle_log += "{} has {} pokemon left, while {} has {} pokemon left!\n\n".format(self.challenger, int(len(challenger_party) - challenge_index), self.opponent, int(len(opponent_party) - opponent_index))
 
         if opponent_index == len(opponent_party):
             winner = self.challenger
-            battle_log += "{} is out of usable pokemon! They blacked out!".format(self.opponent)
+            battle_log += "{} is out of usable pokemon! They blacked out!\n".format(self.opponent)
         else:
             winner = self.opponent
-            battle_log += "{} is out of usable pokemon! They blacked out!".format(self.challenger)
+            battle_log += "{} is out of usable pokemon! They blacked out!\n".format(self.challenger)
 
         battle_log += "The battle has concluded! {} is the winner!".format(winner)
         
@@ -476,12 +477,12 @@ class Battle:
     # Checks to see if the pokemon successfully deals a critical hit
     def check_crit(self):
         r = random.randint(0,100)
-        return r == 100
+        return r <= 5
 
     # Checks to see if a pokemon manages to dodge an attack
     def check_dodge(self):
         r = random.randint(0,100)
-        return r <= 5
+        return r <= 8
     
 # Class that handles all operations involving saving and accessing pokemon for individual users
 class PokeBank:

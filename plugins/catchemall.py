@@ -199,7 +199,6 @@ class CatchEmAll(Plugin):
                 return "Catch em' All: Successfully created the party!"
             return "Catch em' All: Failed to created the party! Pokemon specified must be between 0 and 6!"
         return "Catch em' All: Invalid syntax - use /poke_form_party [id1,id2,id3,etc.]"
-        
 
     # Views a user's currently set pokemon party
     def com_view_party(self, command):
@@ -467,7 +466,7 @@ class Battle:
                     current_defender.current_hp -= damage
                     battle_log += "{} deals {} to {}!\n".format(current_attacker.name, str(damage), current_defender.name)
                 else:
-                    battle_log += "{} managed to dodge {}'s attack!\n".format(current_attacker.name, current_defender.name)
+                    battle_log += "{} managed to dodge {}'s attack!\n".format(current_defender.name, current_attacker.name)
 
                 temp = current_defender
                 current_defender = current_attacker

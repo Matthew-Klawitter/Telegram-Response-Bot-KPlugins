@@ -214,6 +214,156 @@ class CatchEmAll(Plugin):
                 'poke_grant [user] [pokemon] admin command to grant pokemon"
 
 
+# Manages pokemon battles and records information on records
+class BattleManager:
+    def __init__(self, dir):
+        self.dir = dir
+        self.parties = {}
+        self.battles = {}
+
+    def form_party(self, user, poke_list):
+        if 0 < len(poke_list) < 6:
+            self.parties[user] = poke_list
+            return True
+        return False
+
+    def has_party(self, user):
+        if user in self.parties.keys():
+            return True
+        return False
+
+    def view_party(self, user):
+        if self.has_party(user):
+            response = "Catch em' All: Here is your current party {}:\n".format(user)
+            
+            for poke in self.parties[user]:
+                response += "{} | cp:{}\n".format(poke.name, str(poke.cp))
+            return response
+        return "Catch em' All: You have not made a party!"
+
+    def post_battle(self, user, opponent, channel_id):
+        if not user in self.battles.keys():
+            self.battles[user] = Battle(user, opponent, channel_id)
+            return True
+        return False
+
+    def remove_battle(self, user):
+        if user in self.battles.keys():
+            self.battles.pop(user, None)
+            return True
+        return False
+
+    def accept_battle(self, user, opponent):
+        if opponent in self.battles.keys():
+            battle = self.battles[opponent]
+
+            if battle.opponent == user:
+                # A little confusing since the opponent within a battle object is accepting the challengers battle
+                # The user who made the battle
+                challenger_party = self.parties[opponent]
+                # The user who accepted the battle
+                opponent_party = self.parties[user]
+                # Simulate battle
+                results = battle.simulate_battle(challenger_party, opponent_party)
+                self.parties.pop(opponent) # Fix this tomorrow so parties remain consistent
+                self.parties.pop(user)
+                return results
+            return "Catch em' All: You are not the opponent for this battle!"
+        return "Catch em' All: A battle with that challenger does not exist!"
+
+# Holds information on battles and simulates them
+# challenger is the user who created the battle
+# opponent is the user who is being challenged and must choose to accept it
+# channel is the channel id from which the battle was created
+class Battle:
+    def __init__(self, challenger, opponent, channel):
+        self.challenger = challenger
+        self.opponent = opponent
+        self.channel = channel
+
+    # TODO: Change so it doesn't pop fainted pokemon out of the list, but increments an index to the next pokemon. When the index == len for one of the users the battle is over
+    def simulate_battle(self, challenger_party, opponent_party):
+        challenge_cp = self.average_cp(challenger_party)
+        opponent_cp = self.average_cp(opponent_party)
+
+        winner = None
+        battle_log = "The battle between {} and {} commences!\n"
+
+        if challenge_cp > opponent_cp:
+            battle_log += "The expected winner is {}".format(self.challenger)
+        battle_log += "The expected winner is {}".format(self.opponent)
+
+        while len(challenger_party) > 0 and len(opponent_party) > 0:
+            challenge_mon = challenger_party[0]
+            opponent_mon = opponent_party[0]
+            battle_log += "{} sends out {}, while {} sends out {}!\n".format(self.challenger, challenge_mon.name, self.opponent, opponent_mon.name)
+
+            current_attacker, current_defender = self.compare_cp(challenge_cp, opponent_mon)
+
+            while challenge_mon.current_hp > 0 and opponent_mon.current_hp > 0:
+                if not self.check_dodge():
+                    damage = current_attacker.cp
+
+                    if self.check_crit():
+                        damage *= 3
+                    
+                    current_defender.current_hp -= damage
+                    battle_log += "{} deals {} to {}!\n".format(current_attacker.name, str(damage), current_defender.name)
+                battle_log += "{} managed to dodge {}'s attack!\n".format(current_attacker.name, current_defender.name)
+
+                temp = current_attacker
+                current_defender = current_attacker
+                current_attacker = temp
+            
+            if challenge_mon.current_hp <= 0:
+                challenge_mon.current_hp = challenge_mon.max_hp
+                challenger_party.pop(0)
+                battle_log += "{}'s {} fainted! {} gained 25 xp!".format(self.challenger, challenge_mon.name, opponent_mon.name)
+            
+                if opponent_mon.grant_xp(25):
+                    battle_log += "Woah! {}'s {} leveled up!\n".format(self.opponent, opponent_mon.name)
+            else:
+                opponent_mon.current_hp = opponent_mon.max_hp
+                opponent_party.pop(0)
+                battle_log += "{}'s {} fainted! {} gained 25 xp!".format(self.opponent, opponent_mon.name, challenge_mon.name)
+                
+                if challenge_mon.grant_xp(25):
+                    battle_log += "Woah! {}'s {} leveled up!\n".format(self.challenger, challenge_mon.name)
+
+            battle_log += "{} has {} pokemon left, while {} has {} pokemon left!\n\n".format(self.challenger, int(len(challenger_party)), self.opponent, int(len(opponent_party)))
+
+        if len(challenger_party > 0):
+            winner = self.challenger
+            battle_log += "{} is out of usable pokemon! They blacked out!".format(self.opponent)
+        else:
+            winner = self.opponent
+            battle_log += "{} is out of usable pokemon! They blacked out!".format(self.challenger)
+
+        battle_log += "The battle has concluded! {} is the winner!".format(winner)
+        
+        return {"winner" : winner, "log" : battle_log}
+
+    def average_cp(self, party):
+        total_cp = 0
+
+        for poke in party:
+            total_cp += poke.cp
+
+        return total_cp / len(party)
+
+    def compare_cp(self, poke1, poke2):
+        if poke1.cp > poke2.cp:
+            return poke1, poke2
+        return poke2, poke1
+
+    def check_crit(self):
+        r = random.randint(0,100)
+        return r == 100
+
+    def check_dodge(self):
+        r = random.randint(0,100)
+        return r <= 5
+    
 # Class that handles all operations involving saving and accessing pokemon for individual users
 class PokeBank:
     def __init__(self, dir):
@@ -372,9 +522,9 @@ class Pokemon:
 
     # Run every level up to adjust stats
     def update_stats(self):
-        self.attack += random.randint(0,3) + (self.attack * self.cp_multi)
-        self.defence += random.randint(0,3) + (self.defence * self.cp_multi)
-        self.max_hp += random.randint(0,3) + (self.max_hp * self.cp_multi)
+        self.attack += int(random.randint(0,3) + (self.attack * self.cp_multi))
+        self.defence += int(random.randint(0,3) + (self.defence * self.cp_multi))
+        self.max_hp += int(random.randint(0,3) + (self.max_hp * self.cp_multi))
         self.xp = self.xp % 100
         self.level += 1
         self.calculate_cp()
@@ -386,7 +536,7 @@ class Pokemon:
     # Increases xp of this pokemon by the provided amount and checks for a level up
     def grant_xp(self, amount):
         self.xp += amount
-        self.check_level_up()
+        return self.check_level_up()
 
     # Checks if a pokemon is capable of leveling up, if so, it levels it up!
     def check_level_up(self):

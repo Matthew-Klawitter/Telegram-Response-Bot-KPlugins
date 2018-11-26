@@ -41,6 +41,8 @@ class CatchEmAll(Plugin):
         self.poke_bank = PokeBank(self.dir)
         # A PokemonManager object containing data on all pokemon and methods to find information and generate them
         self.poke_manager = PokemonManager(self.dir)
+        # A BattleManager object that manages player pokemon parties and helper methods to simulate battles
+        self.battle_manager = BattleManager(self.dir)
 
         # Launches a deamon thread that handles alerts and random encounters
         thread = threading.Thread(target = self.encounter)
@@ -49,6 +51,9 @@ class CatchEmAll(Plugin):
 
     # Adds a pokemon to a specific users personal pokemon bank (self.poke_bank)
     def com_catch(self, command):
+        if self.check_miss():
+            return "Catch em' All: You missed! Darn it was so close!"
+
         user = command.user.username
 
         if not self.encounter_exists:
@@ -150,6 +155,67 @@ class CatchEmAll(Plugin):
             return "Catch em' All: Sorry, you are not authorized to use this command!"
         return "Catch em' All: Invalid syntax - use /poke_stat [bank_id]"
 
+    # Forms a pokemon party
+    def com_form_party(self, command):
+        user = command.user.username
+        commands = command.args.split(",")
+
+        if 0 < len(commands) <= 6:
+            poke_list = []
+
+            for index in commands:
+                poke = self.poke_bank.get_mon(user, int(index))
+
+                if not poke == None:
+                    poke_list.append(poke)
+                else:
+                    return "Catch em' All: Failed! One or more pokemon do not exist in your bank!"
+
+                if self.battle_manager.form_party(user, poke_list):
+                    return "Catch em' All: Successfully created the party!"
+                return "Catch em' All: Failed to created the party! Pokemon specified must be between 0 and 6!"
+        else:
+            return "Catch em' All: Invalid syntax - use /poke_form_party [id1,id2,id3,etc.]"
+        
+
+    # Views a user's currently set pokemon party
+    def com_view_party(self, command):
+        user = command.user.username
+        return self.battle_manager.view_party(user)
+    
+    # Posts a request to battle an opponent
+    def com_post(self, command):
+        user = command.user.username
+        commands = command.args.split(" ")
+
+        if len(commands) == 1:
+            opponent = commands[0]
+
+            if self.battle_manager.post_battle(user, opponent):
+                response = "Catch em' All: Successfully posted a request to battle {}!\n".format(opponent)
+                response += "{} you can use '/poke_accept_battle {}' to accept the battle!".format(opponent, user)
+            return "Catch em' All: Unable to create battle! You have already posted an existing battle"
+        return "Catch em' All: Invalid syntax - use /poke_post [opponent_name]"
+
+    # Removes a request to battle an opponent
+    def com_rm_post(self, command):
+        user = command.user.username
+        
+        if self.battle_manager.remove_battle(user):
+            return "Catch em' All: Successfully removed your posted battle!"
+        return "Catch em' All: Unable to remove your posted battle! You have not created one!"
+
+    # Accepts a request to battle an opponent and simulates the battle
+    def com_accept_battle(self, command):
+        user = command.user.username
+        commands = command.args.split(" ")
+
+        if len(commands) == 1:
+            challenger = commands[0]
+
+            return self.battle_manager.accept_battle(user, challenger)
+        return "Catch em' All: Invalid syntax - use /poke_accept_battle [challenger_name]"
+
     # Randomly creates a pokemon encounter and alerts all available chat channels
     def encounter(self):
         while threading.main_thread().is_alive():
@@ -166,6 +232,11 @@ class CatchEmAll(Plugin):
                 for channel in self.channels:
                     self.bot.send_message(channel, "Catch em' All: A wild " + self.current_encounter.name + " appeared!")
             sleep(spawn_time)
+
+    # Determines if a user missed a catch :B1:
+    def check_miss(self):
+        r = random.randint(0,100)
+        return r <= 8
 
     # Run whenever someone on telegram types one of these commands
     def on_command(self, command):
@@ -193,10 +264,22 @@ class CatchEmAll(Plugin):
             return {"type": "message", "message": self.com_trade(command)}
         elif command.command == "poke_grant":
             return {"type": "message", "message": self.com_grant(command)}
+        elif command.command == "poke_form_party":
+            return {"type": "message", "message": self.com_form_party(command)}
+        elif command.command == "poke_view_party":
+            return {"type": "message", "message": self.com_view_party(command)}
+        elif command.command == "poke_post":
+            return {"type": "message", "message": self.com_post(command)}
+        elif command.command == "poke_rm_post":
+            return {"type": "message", "message": self.com_rm_post(command)}
+        elif command.command == "poke_accept_battle":
+            return {"type": "message", "message": self.com_accept_battle(command)}
 
     # Commands that are enabled on the server. These are what triggers actions on this plugin
     def get_commands(self):
-        return {"poke_enable", "poke_disable", "catch", "poke_list", "poke_release", "poke_stat", "poke_trade", "poke_grant"}
+        return {"poke_enable", "poke_disable", "catch", "poke_list", "poke_release", "poke_stat",\
+                "poke_trade", "poke_grant", "poke_form_party", "poke_view_party", "poke_post",\
+                "poke_rm_post", "poke_accept_battle"}
 
     # Returns the name of the plugin
     def get_name(self):
@@ -211,7 +294,12 @@ class CatchEmAll(Plugin):
                 'poke_release [bank_id]' to release a pokemon you've caught\n,\
                 'poke_stat [bank_id] to view stats on a pokemon you've caught\n,\
                 'poke_trade [receiver] [bank_id] to trade a pokemon you own\n,\
-                'poke_grant [user] [pokemon] admin command to grant pokemon"
+                'poke_grant [user] [pokemon] admin command to grant pokemon\n,\
+                'poke_form_party [id1,id2,id3,etc.] to create a pokemon party\n,\
+                'poke_view_party to view a created pokemon party\n,\
+                'poke_post [opponent_name]\n,\
+                'poke_rm_post\n,\
+                'poke_accept_battle [challenger_name]"
 
 
 # Manages pokemon battles and records information on records
@@ -247,9 +335,9 @@ class BattleManager:
 
     # Posts a request to battle an opponent
     # Only one battle request can be created per user at any given time
-    def post_battle(self, user, opponent, channel_id):
+    def post_battle(self, user, opponent):
         if not user in self.battles.keys():
-            self.battles[user] = Battle(user, opponent, channel_id)
+            self.battles[user] = Battle(user, opponent)
             return True
         return False
 
@@ -268,37 +356,37 @@ class BattleManager:
     # A user accepts a battle request and the battle is then simulated
     def accept_battle(self, user, opponent):
         if opponent in self.battles.keys():
-            battle = self.battles[opponent]
+            if self.has_party(user) and self.has_party(opponent):
+                battle = self.battles[opponent]
 
-            if battle.opponent == user:
-                # A little confusing since the opponent within a battle object is accepting the challengers battle
-                # The user who made the battle
-                challenger_party = self.parties[opponent]
-                # The user who accepted the battle
-                opponent_party = self.parties[user]
-                # Simulate battle
-                winner, log = battle.simulate_battle(challenger_party, opponent_party)
+                if battle.opponent == user:
+                    # A little confusing since the opponent within a battle object is accepting the challengers battle
+                    # The user who made the battle
+                    challenger_party = self.parties[opponent]
+                    # The user who accepted the battle
+                    opponent_party = self.parties[user]
+                    # Simulate battle
+                    results = battle.simulate_battle(challenger_party, opponent_party)
 
-                # Heal both parties
-                self.heal_party(challenger_party)
-                self.heal_party(opponent_party)
+                    # Heal both parties
+                    self.heal_party(challenger_party)
+                    self.heal_party(opponent_party)
 
-                # Remove the battle
-                self.battles.pop(opponent)
+                    # Remove the battle
+                    self.battles.pop(opponent)
 
-                return [winner, log]
-            return ["Catch em' All: You are not the opponent for this battle!"]
-        return ["Catch em' All: A battle with that challenger does not exist!"]
+                    return results
+                return "Catch em' All: You are not the opponent for this battle!"
+            return "Catch em' All: Cannot battle! Either you or your opponent has not created a party!"
+        return "Catch em' All: A battle with that challenger does not exist!"
 
 # Holds information on battles and simulates them
 # challenger is the user who created the battle
 # opponent is the user who is being challenged and must choose to accept it
-# channel is the channel id from which the battle was created
 class Battle:
-    def __init__(self, challenger, opponent, channel):
+    def __init__(self, challenger, opponent):
         self.challenger = challenger
         self.opponent = opponent
-        self.channel = channel
 
     # Simulates a pokemon battle between two parties
     def simulate_battle(self, challenger_party, opponent_party):
@@ -362,7 +450,7 @@ class Battle:
 
         battle_log += "The battle has concluded! {} is the winner!".format(winner)
         
-        return winner, battle_log
+        return battle_log
 
     # Returns the average cp of all pokemon within a list
     def average_cp(self, party):

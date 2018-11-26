@@ -364,6 +364,7 @@ class Battle:
         
         return winner, battle_log
 
+    # Returns the average cp of all pokemon within a list
     def average_cp(self, party):
         total_cp = 0
 
@@ -372,15 +373,19 @@ class Battle:
 
         return total_cp / len(party)
 
+    # Compares two pokemon, returning a tuple that first contains the pokemon with the highest cp
+    # and the second containing the pokemon with the lowest cp
     def compare_cp(self, poke1, poke2):
         if poke1.cp > poke2.cp:
             return poke1, poke2
         return poke2, poke1
 
+    # Checks to see if the pokemon successfully deals a critical hit
     def check_crit(self):
         r = random.randint(0,100)
         return r == 100
 
+    # Checks to see if a pokemon manages to dodge an attack
     def check_dodge(self):
         r = random.randint(0,100)
         return r <= 5

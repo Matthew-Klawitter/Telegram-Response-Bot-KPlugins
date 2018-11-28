@@ -461,6 +461,7 @@ class Battle:
                     damage = current_attacker.cp * random.randint(4,6)
 
                     if self.check_crit():
+                        battle_log += "Uh oh, {} is charging its power!\n".format(current_attacker.name)
                         damage *= 2
                     
                     current_defender.current_hp -= damage
@@ -468,6 +469,7 @@ class Battle:
                 else:
                     battle_log += "{} managed to dodge {}'s attack!\n".format(current_defender.name, current_attacker.name)
 
+                # Swap attacker and defender for next turn
                 temp = current_defender
                 current_defender = current_attacker
                 current_attacker = temp
@@ -524,7 +526,7 @@ class Battle:
     # Checks to see if a pokemon manages to dodge an attack
     def check_dodge(self):
         r = random.randint(0,100)
-        return r <= 8
+        return r <= 10
     
 # Class that handles all operations involving saving and accessing pokemon for individual users
 class PokeBank:
@@ -667,7 +669,7 @@ class Pokemon:
         # Int XP the pokemon currently posseses (resets at 100 xp)
         self.xp = 0
         # Float CP Multiplier
-        self.cp_multi = (self.level / 100)
+        self.cp_multi = 1 / 100
         # Int Combat Power the pokemon posesses (based off its stats)
         self.cp = 0
 
@@ -706,6 +708,12 @@ class Pokemon:
             self.update_stats()
             return True
         return False
+
+    # Levels up the pokemon
+    # takes int levels - the number of levels to increase the pokemon by
+    def force_level(self, levels):
+        for x in range(levels):
+            self.update_stats()
 
     def __str__(self):
         message = "Catch em' All: Stats for {}\n".format(self.name)

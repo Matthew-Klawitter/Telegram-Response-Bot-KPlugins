@@ -43,6 +43,8 @@ class CatchEmAll(Plugin):
         self.poke_manager = PokemonManager(self.dir)
         # A BattleManager object that manages player pokemon parties and helper methods to simulate battles
         self.battle_manager = BattleManager(self.dir)
+        # A NPCManager that generates random Trainers and pokemon parties for users to fight
+        self.npc_manager = NPCManager(self.dir, self.poke_manager)
 
         # Launches a deamon thread that handles alerts and random encounters
         thread = threading.Thread(target = self.encounter)
@@ -609,17 +611,19 @@ class Battle:
             
             if challenge_mon.current_hp <= 0:
                 challenge_mon.current_hp = challenge_mon.max_hp
+                cp_xp = challenge_mon.cp
                 challenge_index += 1
-                battle_log += "{}'s {} fainted! {} gained 25 xp!\n".format(self.challenger, challenge_mon.name, opponent_mon.name)
+                battle_log += "{}'s {} fainted! {} gained {} xp!\n".format(self.challenger, challenge_mon.name, opponent_mon.name, str(cp_xp + 5))
             
-                if opponent_mon.grant_xp(25):
+                if opponent_mon.grant_xp(cp_xp + 5):
                     battle_log += "Woah! {}'s {} leveled up!\n".format(self.opponent, opponent_mon.name)
             else:
                 opponent_mon.current_hp = opponent_mon.max_hp
+                cp_xp = opponent_mon.cp
                 opponent_index += 1
-                battle_log += "{}'s {} fainted! {} gained 25 xp!\n".format(self.opponent, opponent_mon.name, challenge_mon.name)
+                battle_log += "{}'s {} fainted! {} gained {} xp!\n".format(self.opponent, opponent_mon.name, challenge_mon.name, str(cp_xp + 5))
                 
-                if challenge_mon.grant_xp(25):
+                if challenge_mon.grant_xp(cp_xp + 5):
                     battle_log += "Woah! {}'s {} leveled up!\n".format(self.challenger, challenge_mon.name)
 
             battle_log += "{} has {} pokemon left, while {} has {} pokemon left!\n\n".format(self.challenger, int(len(challenger_party) - challenge_index), self.opponent, int(len(opponent_party) - opponent_index))

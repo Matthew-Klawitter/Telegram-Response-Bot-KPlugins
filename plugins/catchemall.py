@@ -245,6 +245,20 @@ class CatchEmAll(Plugin):
             return response
         return "Catch em' All: Invalid syntax - use /poke_accept_battle [challenger_name]"
 
+    # If the user has a party, they then battle an npc based on a provided difficulty
+    def com_battle_npc(self, command):
+        user = command.user.username
+
+        if not command.args == None:
+            difficulty = int(command.args)
+            npc = self.npc_manager.generate_npc(difficulty)
+
+            if self.battle_manager.has_party(user):
+                battle = Battle(user, npc.name)
+                return battle.simulate_battle(self.battle_manager.get_party(user), npc.party)
+            return "Catch em' All: You have not made a party"
+        return "Catch em' All: Invalid syntax - use /poke_battle_npc [0-7]"
+
     # Randomly creates a pokemon encounter and alerts all available chat channels
     def encounter(self):
         sleep(10)
@@ -315,12 +329,14 @@ class CatchEmAll(Plugin):
             return {"type": "message", "message": self.com_rm_post(command)}
         elif command.command == "poke_accept_battle":
             return {"type": "message", "message": self.com_accept_battle(command)}
+        elif command.command == "poke_battle_npc":
+            return {"type": "message", "message": self.com_battle_npc(command)}
 
     # Commands that are enabled on the server. These are what triggers actions on this plugin
     def get_commands(self):
         return {"poke_enable", "poke_disable", "catch", "fight", "poke_list", "poke_release", "poke_stat",\
                 "poke_trade", "poke_grant", "poke_form_party", "poke_view_party", "poke_post",\
-                "poke_rm_post", "poke_accept_battle"}
+                "poke_rm_post", "poke_accept_battle", "poke_battle_npc"}
 
     # Returns the name of the plugin
     def get_name(self):
@@ -341,7 +357,8 @@ class CatchEmAll(Plugin):
                 '/poke_view_party to view a created pokemon party\n,\
                 '/poke_post [opponent_name]\n,\
                 '/poke_rm_post\n,\
-                '/poke_accept_battle [challenger_name]"
+                '/poke_accept_battle [challenger_name]\n,\
+                '/poke_battle_npc [difficulty between 0-7]"
 
 
 # Handles methods to generate and battle npcs
@@ -365,7 +382,7 @@ class NPCManager:
             name = ["Tom", "Geralt", "Terry", "Mark", "Rowan", "Missy", "Alice", "Sue"]
         elif difficulty == 2:
             prefix = ["Punk", "Guitarist", "Sky-Pirate", "Sailor", "Seafarer", "Challenger", "Principle"]
-            name = [""]
+            name = ["Lewis", "Clarney", "Hannah", "Kim", "Braden", "Brad", "Chad", "Stacey"]
         elif difficulty == 3:
             prefix = ["Rocket-Grunt", "Leader", "Gym-Leader", "Ace-Trainer", "Bryce-Look-Alike"]
             name = ["Bill", "Bruce", "Kurt", "Sean", "Trisha", "Jessie", "James", "Watts", "Louise", "Lois", "Elane"]

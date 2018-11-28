@@ -342,6 +342,139 @@ class CatchEmAll(Plugin):
                 '/poke_accept_battle [challenger_name]"
 
 
+# Handles methods to generate and battle npcs
+class NPCManager:
+    def __init__(self, dir, poke_manager):
+        self.dir = dir
+        self.poke_manager = poke_manager
+
+    def generate_npc(self, difficulty):
+        return NPC(self.generate_name(difficulty), self.generate_party(difficulty))
+
+    def generate_name(self, difficulty):
+        prefix = []
+        name = []
+
+        if difficulty == 0:
+            prefix = ["Youngster", "Bug-Catcher", "Lass", "Lad"]
+            name = ["Joey", "Jill", "Bob", "Sally", "Sandy", "Larry"]
+        elif difficulty == 1:
+            prefix = ["Breeder", "Hiker", "Fisherman", "Coder", "Businessman", "Tuber"]
+            name = ["Tom", "Geralt", "Terry", "Mark", "Rowan", "Missy", "Alice", "Sue"]
+        elif difficulty == 2:
+            prefix = ["Punk", "Guitarist", "Sky-Pirate", "Sailor", "Seafarer", "Challenger", "Principle"]
+            name = [""]
+        elif difficulty == 3:
+            prefix = ["Rocket-Grunt", "Leader", "Gym-Leader", "Ace-Trainer", "Bryce-Look-Alike"]
+            name = ["Bill", "Bruce", "Kurt", "Sean", "Trisha", "Jessie", "James", "Watts", "Louise", "Lois", "Elane"]
+        elif difficulty == 4:
+            prefix = ["Executive", "Director", "Elite", "Chairman"]
+            name = ["Giovanni", "Jerry", "Cyrus", "Courtney"]
+        elif difficulty == 5:
+            prefix = ["Elite-Four", "Frontier-Master", "Rival"]
+            name = ["Paul", "Gary", "Lorelei", "Bruno", "Agatha", "Lance"]
+        elif difficulty == 6:
+            prefix = ["Champion", "Master"]
+            name = ["Red", "Blue", "Steven", "Wallace", "Cynthia", "Iris", "Diantha"]
+        elif difficulty == 7:
+            prefix = ["Developer", "Neuromancer"]
+            name = ["Matthew"]
+        else:
+            prefix = ["Youngster", "Bug-Catcher", "Lass", "Lad"]
+            name = ["Joey", "Jill", "Bob", "Sally", "Sandy", "Larry"]
+
+        return random.choice(prefix) + " " + random.choice(name)
+
+    # Generates a random list of pokemon of varying difficulty and returns it
+    # Will be refactored in the future
+    def generate_party(self, difficulty):
+        party = []
+
+        if difficulty == 0: # Levels 1 - 5
+            for x in range(2):
+                poke = self.poke_manager.generate_pokemon()
+                poke.force_level(random.randint(0,5))
+                party.append(poke)
+        elif difficulty == 1: # Levels 6 - 12
+            for x in range(3):
+                poke = self.poke_manager.generate_pokemon()
+                poke.force_level(random.randint(6,12))
+                party.append(poke)
+        elif difficulty == 2: # Levels 13 - 18
+            for x in range(4):
+                poke = self.poke_manager.generate_pokemon()
+                poke.force_level(random.randint(13,18))
+                party.append(poke)
+        elif difficulty == 3: # Levels 19 - 26
+            for x in range(4):
+                poke = self.poke_manager.generate_pokemon()
+                poke.force_level(random.randint(19,26))
+                party.append(poke)
+        elif difficulty == 4: # Levels 27 - 32
+            for x in range(5):
+                poke = self.poke_manager.generate_pokemon()
+                poke.force_level(random.randint(27,32))
+                party.append(poke)
+        elif difficulty == 5: # Levels 33 - 40
+            for x in range(5):
+                poke = self.poke_manager.generate_pokemon()
+                poke.force_level(random.randint(33,40))
+                party.append(poke)
+        elif difficulty == 6: # Levels 41 - 50
+            for x in range(6):
+                poke = self.poke_manager.generate_pokemon()
+                poke.force_level(random.randint(41,50))
+                party.append(poke)
+        elif difficulty == 7: # Unfair... 9 level 100 pokemon
+            poke = self.poke_manager.generate_exact_pokemon("Eevee")
+            poke.force_level(99)
+            party.append(poke)
+
+            poke = self.poke_manager.generate_exact_pokemon("Espeon")
+            poke.force_level(99)
+            party.append(poke)
+
+            poke = self.poke_manager.generate_exact_pokemon("Umbreon")
+            poke.force_level(99)
+            party.append(poke)
+
+            poke = self.poke_manager.generate_exact_pokemon("Sylveon")
+            poke.force_level(99)
+            party.append(poke)
+
+            poke = self.poke_manager.generate_exact_pokemon("Vaporeon")
+            poke.force_level(99)
+            party.append(poke)
+
+            poke = self.poke_manager.generate_exact_pokemon("Flareon")
+            poke.force_level(99)
+            party.append(poke)
+
+            poke = self.poke_manager.generate_exact_pokemon("Jolteon")
+            poke.force_level(99)
+            party.append(poke)
+
+            poke = self.poke_manager.generate_exact_pokemon("Leafeon")
+            poke.force_level(99)
+            party.append(poke)
+
+            poke = self.poke_manager.generate_exact_pokemon("Glaceon")
+            poke.force_level(99)
+            party.append(poke)
+        else:
+            for x in range(2):
+                poke = self.poke_manager.generate_pokemon()
+                poke.force_level(random.randint(0,5))
+                party.append(poke)
+        return party
+
+
+# Contains information on npc's users can battle
+class NPC:
+    def __init__(self, name, pokemon_list):
+        self.name = name
+        self.party = pokemon_list
+
 # Manages pokemon battles and records information on records
 class BattleManager:
     def __init__(self, dir):

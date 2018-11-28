@@ -286,6 +286,7 @@ class CatchEmAll(Plugin):
 
                 for x in range(rand_spawn):
                     poke = self.poke_manager.generate_pokemon()
+                    poke.force_level(random.randint(0,8))
                     response += "{} (cp:{})\n".format(poke.name, str(poke.cp))
                     spawns.append(poke)
 
@@ -632,8 +633,8 @@ class Battle:
                     battle_log += "{} deals {} to {}!\n".format(current_attacker.name, str(damage), current_defender.name)
 
                     if self.check_counter(current_attacker.attack, current_defender.attack):
-                        damage /= 4
-                        battle_log += "Woah! {} was prepared and countered the attack dealing {} to {}!\n".format(current_defender, str(damage), current_attacker)
+                        damage = int(damage / 4)
+                        battle_log += "Woah! {} was prepared and countered the attack dealing {} to {}!\n".format(current_defender.name, str(damage), current_attacker.name)
                         current_attacker.current_hp -= damage
                 else:
                     battle_log += "{} managed to dodge {}'s attack!\n".format(current_defender.name, current_attacker.name)

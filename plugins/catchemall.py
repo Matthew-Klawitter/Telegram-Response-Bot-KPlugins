@@ -621,8 +621,8 @@ class Battle:
             current_attacker, current_defender = self.compare_cp(challenge_mon, opponent_mon)
 
             while challenge_mon.current_hp > 0 and opponent_mon.current_hp > 0:
-                if not self.check_dodge():
-                    damage = current_attacker.cp * random.randint(4,6)
+                if not self.check_dodge(current_attacker.attack, current_defender.defence):
+                    damage = current_attacker.cp * random.randint(3,5)
 
                     if self.check_crit():
                         battle_log += "Uh oh, {} is charging its power!\n".format(current_attacker.name)
@@ -630,6 +630,11 @@ class Battle:
                     
                     current_defender.current_hp -= damage
                     battle_log += "{} deals {} to {}!\n".format(current_attacker.name, str(damage), current_defender.name)
+
+                    if self.check_counter(current_attacker.attack, current_defender.attack):
+                        damage /= 4
+                        battle_log += "Woah! {} was prepared and countered the attack dealing {} to {}!\n".format(current_defender, str(damage), current_attacker)
+                        current_attacker.current_hp -= damage
                 else:
                     battle_log += "{} managed to dodge {}'s attack!\n".format(current_defender.name, current_attacker.name)
 
@@ -684,15 +689,17 @@ class Battle:
             return poke1, poke2
         return poke2, poke1
 
-    # Checks to see if the pokemon successfully deals a critical hit
+    # Checks to see if the attacker pokemon successfully lands a critical hit dealing x2
     def check_crit(self):
-        r = random.randint(0,100)
-        return r <= 5
+        return random.randint(0,99) <= 4
 
-    # Checks to see if a pokemon manages to dodge an attack
-    def check_dodge(self):
-        r = random.randint(0,100)
-        return r <= 10
+    # Checks to see if the defending pokemon manages to dodge an attack
+    def check_dodge(self, attack, defense):
+        return random.randint(0,int(defense / 3)) >= random.randint(0,attack)
+
+    # Checks to see if the defending pokemon delivers counter attack damage
+    def check_counter(self, attacker_atk, defender_atk):
+        return random.randint(0,int(defender_atk / 3)) >= random.randint(0,attacker_atk)
     
 # Class that handles all operations involving saving and accessing pokemon for individual users
 class PokeBank:

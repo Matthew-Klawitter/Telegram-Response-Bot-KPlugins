@@ -45,6 +45,8 @@ class CatchEmAll(Plugin):
         self.battle_manager = BattleManager(self.dir)
         # A NPCManager that generates random Trainers and pokemon parties for users to fight
         self.npc_manager = NPCManager(self.dir, self.poke_manager)
+        # A List containing all users who have battled an npc since the last encounter. Empties with every new encounter
+        self.npc_cooldown = []
 
         # Launches a deamon thread that handles alerts and random encounters
         thread = threading.Thread(target = self.encounter)
@@ -249,12 +251,16 @@ class CatchEmAll(Plugin):
     def com_battle_npc(self, command):
         user = command.user.username
 
+        if user in self.npc_cooldown:
+            return "Catch em' All: It's too soon to battle again! Wait until another wild encounter appears!"
+
         if not command.args == None:
             difficulty = int(command.args)
             npc = self.npc_manager.generate_npc(difficulty)
 
             if self.battle_manager.has_party(user):
                 battle = Battle(user, npc.name)
+                self.npc_cooldown.append(user)
                 return battle.simulate_battle(self.battle_manager.get_party(user), npc.party)
             return "Catch em' All: You have not made a party"
         return "Catch em' All: Invalid syntax - use /poke_battle_npc [0-7]"
@@ -268,8 +274,11 @@ class CatchEmAll(Plugin):
             if self.encounter_exists:
                 self.encounter_exists = False
                 self.current_encounter = None
+
                 for channel in self.channels:
                     self.bot.send_message(channel, "Catch em' All: Aw, the pokemon got away!")
+                    
+                self.npc_cooldown.clear()
             else:
                 rand_spawn = random.randint(1,3)
                 response = "Catch em' All: The following wild pokemon appeared:\n"
@@ -282,6 +291,9 @@ class CatchEmAll(Plugin):
 
                 self.current_encounter = spawns
                 self.encounter_exists = True
+
+                self.npc_cooldown.clear()
+
                 for channel in self.channels:
                     self.bot.send_message(channel, response)
             sleep(spawn_time)

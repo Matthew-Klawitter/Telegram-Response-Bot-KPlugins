@@ -406,34 +406,34 @@ class NPCManager:
         party = []
 
         if difficulty == 0: # Levels 1 - 5
-            for x in range(3):
+            for x in range(2):
                 poke = self.poke_manager.generate_pokemon()
-                poke.force_level(random.randint(3,5))
+                poke.force_level(random.randint(3,4))
                 party.append(poke)
         elif difficulty == 1: # Levels 6 - 12
-            for x in range(4):
+            for x in range(3):
                 poke = self.poke_manager.generate_pokemon()
-                poke.force_level(random.randint(9,11))
+                poke.force_level(random.randint(7,13))
                 party.append(poke)
         elif difficulty == 2: # Levels 13 - 18
             for x in range(4):
                 poke = self.poke_manager.generate_pokemon()
-                poke.force_level(random.randint(16,18))
+                poke.force_level(random.randint(14,19))
                 party.append(poke)
         elif difficulty == 3: # Levels 19 - 26
             for x in range(5):
                 poke = self.poke_manager.generate_pokemon()
-                poke.force_level(random.randint(24,26))
+                poke.force_level(random.randint(20,27))
                 party.append(poke)
         elif difficulty == 4: # Levels 27 - 32
             for x in range(6):
                 poke = self.poke_manager.generate_pokemon()
-                poke.force_level(random.randint(30,32))
+                poke.force_level(random.randint(28,33))
                 party.append(poke)
         elif difficulty == 5: # Levels 33 - 40
             for x in range(6):
                 poke = self.poke_manager.generate_pokemon()
-                poke.force_level(random.randint(37,40))
+                poke.force_level(random.randint(34,41))
                 party.append(poke)
         elif difficulty == 6: # Levels 41 - 50
             for x in range(6):

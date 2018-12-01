@@ -836,8 +836,10 @@ class PokemonManager:
                 attack = item["base"]["Attack"]
                 defense = item["base"]["Defense"]
                 max_hp = item["base"]["HP"]
+                spc_atk = item["base"]["Sp.Atk"]
+                spc_def = item["base"]["Sp.Def"]
                 speed = item["base"]["Speed"]
-                data[name] = {"name" : name, "base_atk" : attack, "base_def" : defense, "base_hp" : max_hp, "base_spe" : speed}
+                data[name] = {"name" : name, "base_atk" : attack, "base_def" : defense, "base_hp" : max_hp, "base_spc_atk" : spc_atk, "base_spc_def" : spc_def, "base_spe" : speed}
             return data
 
         except NotADirectoryError:
@@ -855,23 +857,23 @@ class PokemonManager:
         keys = list(self.pokemon.keys())
         key = random.choice(keys)
         poke = self.pokemon[key]
-        return Pokemon(poke["name"], poke["base_atk"], poke["base_def"], poke["base_hp"], poke["base_spe"])
+        return Pokemon(poke["name"], poke["base_atk"], poke["base_def"], poke["base_hp"], poke["base_spc_atk"], poke["base_spc_def"], poke["base_spe"])
 
     # Returns a specified newly generated pokemon
     def generate_exact_pokemon(self, name):
         poke = self.pokemon[name]
-        return Pokemon(poke["name"], poke["base_atk"], poke["base_def"], poke["base_hp"], poke["base_spe"])
+        return Pokemon(poke["name"], poke["base_atk"], poke["base_def"], poke["base_hp"], poke["base_spc_atk"], poke["base_spc_def"], poke["base_spe"])
 
 
 # Stores information on a specific pokemon and handles initial generation and increases in stats
 class Pokemon:
-    def __init__(self, poke_name, base_atk, base_def, base_hp, base_spe):
+    def __init__(self, poke_name, base_atk, base_def, base_hp, base_spc_atk, base_spc_def, base_spe):
         # String Name of the pokemon
         self.name = poke_name
         # Int Attack of the pokemon
-        self.attack = base_atk
+        self.attack = max(base_atk, base_spc_atk)
         # Int Defence of the pokemon
-        self.defence = base_def
+        self.defence = max(base_def, base_spc_def)
         # Int Hitpoints of the pokemon
         self.max_hp = base_hp
         # Int Speed of the pokemon
@@ -889,9 +891,18 @@ class Pokemon:
         # Int Combat Power the pokemon posesses (based off its stats)
         self.cp = 0
 
+        # Modifers that increase the pokemon's designated stats each level by the specified amount
+        self.attack_growth_mod = 0
+        self.defence_growth_mod = 0
+        self.hp_growth_mod = 0
+        self.speed_growth_mod = 0
+
         # Adds noise to pokemon attributes
         self.add_iv_noise()
+        # Calculates the combat power of the pokemon
         self.calculate_cp()
+        # Calculates the growth mods of the pokemon
+        self.calculate_growth_mods()
 
     # Adds some noise to distinct pokemon attributes
     def add_iv_noise(self):
@@ -900,6 +911,21 @@ class Pokemon:
         self.max_hp = int((self.max_hp + random.randint(0,15)) + self.max_hp * self.cp_multi)
         self.speed = int((self.speed + random.randint(0,15)) + self.speed * self.cp_multi)
         self.current_hp = self.max_hp
+
+    # Calculates stat growth per pokemon
+    def calculate_growth_mods(self):
+        stats = [self.attack, self.defence, self.max_hp, self.speed]
+        mods = [0,0,0,0]
+
+        for x in range(len(stats)):
+            index = stats.index(min(stats))
+            stats.pop(index)
+            mods[index] = x
+
+        self.attack_growth_mod = mods[0]
+        self.defence_growth_mod = mods[1]
+        self.hp = mods[2]
+        self.speed_growth_mod = mods[3]
 
     # Increases xp of this pokemon by the provided amount and checks for a level up
     def grant_xp(self, amount):
@@ -923,10 +949,10 @@ class Pokemon:
     # Run every level up to adjust stats
     def update_stats(self):
         for x in range(int(self.xp / 100)):
-            self.attack += int(random.randint(1,6) + (self.attack * self.cp_multi))
-            self.defence += int(random.randint(1,5) + (self.defence * self.cp_multi))
-            self.max_hp += int(random.randint(1,8) + (self.max_hp * self.cp_multi))
-            self.speed += int(random.randint(1,3) + (self.speed * self.cp_multi))
+            self.attack += int(random.randint(1,4) + (self.attack * self.cp_multi)) + self.attack_growth_mod
+            self.defence += int(random.randint(1,4) + (self.defence * self.cp_multi)) + self.defence_growth_mod
+            self.max_hp += int(random.randint(2,5) + (self.max_hp * self.cp_multi)) + self.hp_growth_mod
+            self.speed += int(random.randint(1,3) + (self.speed * self.cp_multi)) + self.speed_growth_mod
             self.level += 1
             self.calculate_cp()
         self.xp = self.xp % 100

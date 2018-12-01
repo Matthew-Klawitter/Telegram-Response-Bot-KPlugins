@@ -689,19 +689,19 @@ class Battle:
 
     # Calculates xp granted to the winning pokemon after a knockout
     def calculate_xp(self, winning_poke, losing_poke):
-        level_diff = winning_poke.level - losing_poke.level
+        level_diff = losing_poke.level / winning_poke.level
         difficulty_bonus = 1
 
-        if level_diff == 0:
-            return 10
-
-        if level_diff < 0:
-            level_diff *= -1
-
         for x in range(difficulty_bonus):
-            difficulty_bonus += .2
+            difficulty_bonus += .1
 
-        return int(10 * level_diff * difficulty_bonus)
+        if difficulty_bonus > 2.5:
+            difficulty_bonus = 2.5
+
+        if level_diff < 1:
+            difficulty_bonus += 1
+
+        return int(15 * level_diff * difficulty_bonus)
 
     # Compares two pokemon, returning a tuple that first contains the pokemon with the highest speed
     # and the second containing the pokemon with the lowest speed

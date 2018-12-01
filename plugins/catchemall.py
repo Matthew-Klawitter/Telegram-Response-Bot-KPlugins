@@ -797,7 +797,8 @@ class PokemonManager:
                 attack = item["base"]["Attack"]
                 defense = item["base"]["Defense"]
                 max_hp = item["base"]["HP"]
-                data[name] = {"name" : name, "base_atk" : attack, "base_def" : defense, "base_hp" : max_hp}
+                speed = item["base"]["Speed"]
+                data[name] = {"name" : name, "base_atk" : attack, "base_def" : defense, "base_hp" : max_hp, "base_spe" : speed}
             return data
 
         except NotADirectoryError:
@@ -815,17 +816,17 @@ class PokemonManager:
         keys = list(self.pokemon.keys())
         key = random.choice(keys)
         poke = self.pokemon[key]
-        return Pokemon(poke["name"], poke["base_atk"], poke["base_def"], poke["base_hp"])
+        return Pokemon(poke["name"], poke["base_atk"], poke["base_def"], poke["base_hp"], poke["base_spe"])
 
     # Returns a specified newly generated pokemon
     def generate_exact_pokemon(self, name):
         poke = self.pokemon[name]
-        return Pokemon(poke["name"], poke["base_atk"], poke["base_def"], poke["base_hp"])
+        return Pokemon(poke["name"], poke["base_atk"], poke["base_def"], poke["base_hp"], poke["base_spe"])
 
 
 # Stores information on a specific pokemon and handles initial generation and increases in stats
 class Pokemon:
-    def __init__(self, poke_name, base_atk, base_def, base_hp):
+    def __init__(self, poke_name, base_atk, base_def, base_hp, base_spe):
         # String Name of the pokemon
         self.name = poke_name
         # Int Attack of the pokemon
@@ -834,6 +835,8 @@ class Pokemon:
         self.defence = base_def
         # Int Hitpoints of the pokemon
         self.max_hp = base_hp
+        # Int Speed of the pokemon
+        self.speed = base_spe
         # Int The current hitpoints of the pokemon
         self.current_hp = base_hp
         # Bool Flag that determines if the pokemon is fanted or not (if current_hp == 0 this should be True)
@@ -856,6 +859,7 @@ class Pokemon:
         self.attack = int((self.attack + random.randint(0,15)) + self.attack * self.cp_multi)
         self.defence = int((self.defence + random.randint(0,15)) + self.defence * self.cp_multi)
         self.max_hp = int((self.max_hp + random.randint(0,15)) + self.max_hp * self.cp_multi)
+        self.speed = int((self.speed + random.randint(0,15)) + self.speed * self.cp_multi)
         self.current_hp = self.max_hp
 
     # Run every level up to adjust stats
@@ -863,6 +867,7 @@ class Pokemon:
         self.attack += int(random.randint(1,6) + (self.attack * self.cp_multi))
         self.defence += int(random.randint(1,5) + (self.defence * self.cp_multi))
         self.max_hp += int(random.randint(1,8) + (self.max_hp * self.cp_multi))
+        self.speed += int(random.randint(1,3) + (self.speed * self.cp_multi))
         self.xp = self.xp % 100
         self.level += 1
         self.calculate_cp()
@@ -891,8 +896,11 @@ class Pokemon:
 
     def __str__(self):
         message = "Catch em' All: Stats for {}\n".format(self.name)
-        message += "HP: {}/{}\n".format(str(self.current_hp), str(self.max_hp))
         message += "CP: {}\n".format(str(self.cp))
         message += "Lv: {}\n".format(str(self.level))
         message += "Xp: {}/{}\n".format(str(self.xp), str(100))
+        message += "HP: {}/{}\n".format(str(self.current_hp), str(self.max_hp))
+        message += "Atk: {}\n".format(str(self.attack))
+        message += "Def: {}\n".format(str(self.defence))
+        message += "Spe: {}\n".format(str(self.speed))
         return message

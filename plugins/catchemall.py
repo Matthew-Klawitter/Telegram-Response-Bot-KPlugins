@@ -864,13 +864,14 @@ class Pokemon:
 
     # Run every level up to adjust stats
     def update_stats(self):
-        self.attack += int(random.randint(1,6) + (self.attack * self.cp_multi))
-        self.defence += int(random.randint(1,5) + (self.defence * self.cp_multi))
-        self.max_hp += int(random.randint(1,8) + (self.max_hp * self.cp_multi))
-        self.speed += int(random.randint(1,3) + (self.speed * self.cp_multi))
+        for x in range(int(self.xp / 100):
+            self.attack += int(random.randint(1,6) + (self.attack * self.cp_multi))
+            self.defence += int(random.randint(1,5) + (self.defence * self.cp_multi))
+            self.max_hp += int(random.randint(1,8) + (self.max_hp * self.cp_multi))
+            self.speed += int(random.randint(1,3) + (self.speed * self.cp_multi))
+            self.level += 1
+            self.calculate_cp()
         self.xp = self.xp % 100
-        self.level += 1
-        self.calculate_cp()
 
     # Calculates the combat power of the pokemon
     def calculate_cp(self):
@@ -892,7 +893,8 @@ class Pokemon:
     # takes int levels - the number of levels to increase the pokemon by
     def force_level(self, levels):
         for x in range(levels):
-            self.update_stats()
+            self.xp += 100
+        self.update_stats()
 
     def __str__(self):
         message = "Catch em' All: Stats for {}\n".format(self.name)

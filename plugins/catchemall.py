@@ -265,7 +265,7 @@ class CatchEmAll(Plugin):
             response = "Catch em' All: There are wild pokemon about!:\n"
 
             if len(self.current_encounter.keys()) < 10:
-                rand_spawn = random.randint(1,3)
+                rand_spawn = random.randint(3,6)
             
                 for x in range(rand_spawn):
                     poke = self.poke_manager.generate_pokemon()

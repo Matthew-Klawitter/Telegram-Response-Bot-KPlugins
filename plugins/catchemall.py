@@ -342,8 +342,8 @@ class CatchEmAll(Plugin):
     def get_help(self):
         return "'/poke_enable' to enable alerts in this channel \n,\
                 '/poke_disable' to disable alerts in this channel\n,\
-                '/catch' to catch a pokemon \n,\
-                '/fight' to fight the current encounter \n,\
+                '/catch [poke_name]' to catch a pokemon \n,\
+                '/fight [poke_name]' to fight the current encounter \n,\
                 '/poke_list' to see pokemon you've caught and their bank location\n,\
                 '/poke_release [bank_id]' to release a pokemon you've caught\n,\
                 '/poke_stat [bank_id] to view stats on a pokemon you've caught\n,\

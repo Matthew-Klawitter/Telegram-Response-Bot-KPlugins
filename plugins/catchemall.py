@@ -862,21 +862,6 @@ class Pokemon:
         self.speed = int((self.speed + random.randint(0,15)) + self.speed * self.cp_multi)
         self.current_hp = self.max_hp
 
-    # Run every level up to adjust stats
-    def update_stats(self):
-        for x in range(int(self.xp / 100)):
-            self.attack += int(random.randint(1,6) + (self.attack * self.cp_multi))
-            self.defence += int(random.randint(1,5) + (self.defence * self.cp_multi))
-            self.max_hp += int(random.randint(1,8) + (self.max_hp * self.cp_multi))
-            self.speed += int(random.randint(1,3) + (self.speed * self.cp_multi))
-            self.level += 1
-            self.calculate_cp()
-        self.xp = self.xp % 100
-
-    # Calculates the combat power of the pokemon
-    def calculate_cp(self):
-        self.cp = int((self.attack * (self.defence**.5) * (self.max_hp**.5) * (self.cp_multi)) / 10)
-
     # Increases xp of this pokemon by the provided amount and checks for a level up
     def grant_xp(self, amount):
         self.xp += amount
@@ -895,6 +880,21 @@ class Pokemon:
         for x in range(levels):
             self.xp += 100
         self.update_stats()
+
+    # Run every level up to adjust stats
+    def update_stats(self):
+        for x in range(int(self.xp / 100)):
+            self.attack += int(random.randint(1,6) + (self.attack * self.cp_multi))
+            self.defence += int(random.randint(1,5) + (self.defence * self.cp_multi))
+            self.max_hp += int(random.randint(1,8) + (self.max_hp * self.cp_multi))
+            self.speed += int(random.randint(1,3) + (self.speed * self.cp_multi))
+            self.level += 1
+            self.calculate_cp()
+        self.xp = self.xp % 100
+
+    # Calculates the combat power of the pokemon
+    def calculate_cp(self):
+        self.cp = int((self.attack * (self.defence**.5) * (self.max_hp**.5) * (self.cp_multi)) / 10)
 
     def __str__(self):
         message = "Catch em' All: Stats for {}\n".format(self.name)

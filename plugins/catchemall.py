@@ -684,7 +684,7 @@ class Battle:
 
     # Calculates damage dealt to a pokemon
     def calculate_damage(self, attacker_poke, reciever_poke):
-        damage_scalar = 2
+        damage_scalar = random.randint(2,3)
         return (int(((((2 * attacker_poke.level) / 5) + 2) * 100 * (attacker_poke.attack / reciever_poke.attack)) / 50) + 2) * damage_scalar
 
     # Calculates xp granted to the winning pokemon after a knockout

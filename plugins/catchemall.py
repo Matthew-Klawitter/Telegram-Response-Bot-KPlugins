@@ -19,8 +19,8 @@ def load(data_dir, bot):
 
 """
 Created by Matthew Klawitter 11/19/2018
-Last Updated: 11/21/2018
-Version: v2.0.0.1
+Last Updated: 12/1/2018
+Version: v1.0.1.1
 """
 
 
@@ -33,10 +33,8 @@ class CatchEmAll(Plugin):
         self.bot = bot
         # A set containing all channels in which to send alerts to
         self.channels = set()
-        # Flag indicating if there is a current pokemon encounter available
-        self.encounter_exists = False
-        # A Pokemon object containing and available pokemon encounter
-        self.current_encounter = None
+        # A dict object containing all available pokemon encounters
+        self.current_encounter = {}
         # A PokeBank object containing data on users and the pokemon they own
         self.poke_bank = PokeBank(self.dir)
         # A PokemonManager object containing data on all pokemon and methods to find information and generate them
@@ -59,46 +57,40 @@ class CatchEmAll(Plugin):
             return "Catch em' All: You missed! Darn it was so close!"
 
         user = command.user.username
+        commands = command.args.split(" ")
 
-        if not self.encounter_exists:
-            return "Catch em' All: There is no encounter, check back later!"
-
-        if self.current_encounter == None:
-            return "Catch em' All: Sorry " + user + ", you missed your chance!"
-
-        poke = self.current_encounter.pop(0)
-        self.poke_bank.store_mon(user, poke)
-
-        if len(self.current_encounter) == 0:
-            self.current_encounter = None
-            self.encounter_exists = False
-        return "Catch em' All: Congrats " + user + " you caught {} (cp:{})!".format(poke.name, str(poke.cp))
+        if len(commands) == 1:
+            if commands[0] in self.current_encounter.keys():
+                poke = self.current_encounter.pop(commands[0])
+                self.poke_bank.store_mon(user, poke)
+                return "Catch em' All: Congrats " + user + " you caught {} (cp:{})!".format(poke.name, str(poke.cp))
+            return "Catch em' All: An encounter does not exist for that pokemon!"
+        return "Catch em' All: Invalid syntax - use /catch [pokemon_name]"
+        
 
     def com_fight(self, command):
         user = command.user.username
-
-        if not self.encounter_exists:
-            return "Catch em' All: There is no encounter, check back later!"
-
-        if self.current_encounter == None:
-            return "Catch em' All: Sorry " + user + ", you missed your chance!"
+        commands = command.args.split(" ")
 
         if self.battle_manager.has_party(user):
-            battle = Battle(user, "Wild Pokemon")
-            party = self.battle_manager.get_party(user)
+            if len(commands) == 1:
+                if commands[0] in self.current_encounter.keys():
+                    battle = Battle(user, "Wild Pokemon")
+                    party = self.battle_manager.get_party(user)
 
-            response = battle.simulate_battle(party, self.current_encounter)
-            self.current_encounter = None
-            self.encounter_exists = False
-            self.battle_manager.heal_party(party)
-            self.poke_bank.save()
+                    response = battle.simulate_battle(party, [self.current_encounter.pop(commands[0])])
+                    self.battle_manager.heal_party(party)
+                    self.poke_bank.save()
 
-            return response + "\n\nRemaining wild pokemon fled!"
+                    return response
+                return "Catch em' All: An encounter does not exist for that pokemon!"
+            return "Catch em' All: Invalid syntax - use /fight [pokemon_name]"
         return "Catch em' All: You have not made a party!"
 
     # Lists all pokemon within a user's pokemon bank (dict) should they exist
     def com_list(self, command):
         user = command.user.username
+
         if self.poke_bank.user_exists(user):
             bank = self.poke_bank.user_list(user)
             index = 0
@@ -267,36 +259,27 @@ class CatchEmAll(Plugin):
 
     # Randomly creates a pokemon encounter and alerts all available chat channels
     def encounter(self):
-        sleep(10)
+        sleep(20)
         while threading.main_thread().is_alive():
             spawn_time = random.randint(300,2400)
+            response = "Catch em' All: There are wild pokemon about!:\n"
 
-            if self.encounter_exists:
-                self.encounter_exists = False
-                self.current_encounter = None
-
-                for channel in self.channels:
-                    self.bot.send_message(channel, "Catch em' All: Aw, the pokemon got away!")
-                    
-                self.npc_cooldown.clear()
-            else:
+            if len(self.current_encounter.keys()) < 10:
                 rand_spawn = random.randint(1,3)
-                response = "Catch em' All: The following wild pokemon appeared:\n"
-                spawns = []
-
+            
                 for x in range(rand_spawn):
                     poke = self.poke_manager.generate_pokemon()
-                    poke.force_level(random.randint(0,8))
-                    response += "{} (cp:{})\n".format(poke.name, str(poke.cp))
-                    spawns.append(poke)
+                    poke.force_level(random.randint(0,5))
+                    self.current_encounter[poke.name] = poke
 
-                self.current_encounter = spawns
-                self.encounter_exists = True
+            for name in self.current_encounter.keys():
+                poke = self.current_encounter[name]
+                response += "{} (cp:{})\n".format(name, str(poke.cp))
 
-                self.npc_cooldown.clear()
+            self.npc_cooldown.clear()
 
-                for channel in self.channels:
-                    self.bot.send_message(channel, response)
+            for channel in self.channels:
+                self.bot.send_message(channel, response)
             sleep(spawn_time)
 
     # Determines if a user missed a catch :B1:
@@ -576,6 +559,9 @@ class BattleManager:
                     challenger_party = self.parties[opponent]
                     # The user who accepted the battle
                     opponent_party = self.parties[user]
+                    # Heal both parties
+                    self.heal_party(challenger_party)
+                    self.heal_party(opponent_party)
                     # Simulate battle
                     results = battle.simulate_battle(challenger_party, opponent_party)
 

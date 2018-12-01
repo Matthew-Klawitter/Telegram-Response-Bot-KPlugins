@@ -601,30 +601,44 @@ class Battle:
 
     # Simulates a pokemon battle between two parties
     def simulate_battle(self, challenger_party, opponent_party):
-        challenge_cp = int(self.average_cp(challenger_party))
-        opponent_cp = int(self.average_cp(opponent_party))
+        # Holds the index of the current pokemon used for battle within the chalenger_party list
         challenge_index = 0
+        # Holds the index of the current pokemon used for battle within the opponent_party list
         opponent_index = 0
-
+        # Holds a String of the winner of the match
         winner = None
+        # Holds a log of everything that occurs within the battle
         battle_log = "The battle between {} and {} commences!\n".format(self.challenger, self.opponent)
 
-        if challenge_cp > opponent_cp:
-            battle_log += "The expected winner is {}\n".format(self.challenger)
-        else:
-            battle_log += "The expected winner is {}\n".format(self.opponent)
-
+        # Checks if the index for both pokemon lists is out of bounds
+        # The battle continues until one trainer's index exceeds the length of their pokemon list (i.e. challenger_party or opponent_party)
         while challenge_index < len(challenger_party) and opponent_index < len(opponent_party):
+            # The current Pokemon used in battle by the challenger
             challenge_mon = challenger_party[challenge_index]
+            # The current Pokemon used in battle by the opponent
             opponent_mon = opponent_party[opponent_index]
+            # Determines turn order, who attacks first and who is defending
+            current_attacker, current_defender = self.compare_speed(challenge_mon, opponent_mon)
+            
             battle_log += "{} sends out {}, while {} sends out {}!\n".format(self.challenger, challenge_mon.name, self.opponent, opponent_mon.name)
 
-            current_attacker, current_defender = self.compare_cp(challenge_mon, opponent_mon)
-
+            # Battle loop that runs until either the current_hp of either the
+            # challenger_mon Pokemon or the opponent_mon is less-than or equal to 0
             while challenge_mon.current_hp > 0 and opponent_mon.current_hp > 0:
-                if not self.check_dodge(current_attacker.attack, current_defender.defence):
-                    damage = current_attacker.cp * random.randint(3,5)
+                # Checks if the current_defender Pokemon manages to dodge this attack
+                if self.check_dodge(current_attacker.attack, current_defender.speed):
+                    battle_log += "{} managed to dodge {}'s attack!\n".format(current_defender.name, current_attacker.name)
+                    
+                    # Checks if after a dodge, the current_defender is able to deal counter damage to the current_attacker
+                    if self.check_counter(current_attacker.attack, current_defender.attack):
+                        damage = int(self.calculate_damage(current_defender, current_attacker)/2)
+                        current_attacker.current_hp -= damage
+                        battle_log += "Woah! {} was prepared and countered the attack dealing {} to {}!\n".format(current_defender.name, str(damage), current_attacker.name)
+                else:
+                    # Since the defender failed to dodge, the current_attacker will deal damage to the current_defender
+                    damage = self.calculate_damage(current_attacker, current_defender)
 
+                    # Checks to see if the current_attacker deals a critical blow dealing x2 damage
                     if self.check_crit():
                         battle_log += "Uh oh, {} is charging its power!\n".format(current_attacker.name)
                         damage *= 2
@@ -632,76 +646,101 @@ class Battle:
                     current_defender.current_hp -= damage
                     battle_log += "{} deals {} to {}!\n".format(current_attacker.name, str(damage), current_defender.name)
 
-                    if self.check_counter(current_attacker.attack, current_defender.attack):
-                        damage = int(damage / 4)
-                        battle_log += "Woah! {} was prepared and countered the attack dealing {} to {}!\n".format(current_defender.name, str(damage), current_attacker.name)
-                        current_attacker.current_hp -= damage
-                else:
-                    battle_log += "{} managed to dodge {}'s attack!\n".format(current_defender.name, current_attacker.name)
-
                 # Swap attacker and defender for next turn
                 temp = current_defender
                 current_defender = current_attacker
                 current_attacker = temp
             
-            if challenge_mon.current_hp <= 0:
-                challenge_mon.current_hp = challenge_mon.max_hp
-                cp_xp = challenge_mon.cp
+            # Checks if both pokemon failed during the battle, incrementing both
+            # challenge_index and opponent_index
+            if challenge_mon.current_hp <= 0 and opponent_mon.current_hp <= 0:
+                battle_log += "Oh no, both Pokemon fainted! The Pokemon KO'd each other!\n"
                 challenge_index += 1
-                battle_log += "{}'s {} fainted! {} gained {} xp!\n".format(self.challenger, challenge_mon.name, opponent_mon.name, str(cp_xp + 5))
-            
-                if opponent_mon.grant_xp(cp_xp + 5):
-                    battle_log += "Woah! {}'s {} leveled up!\n".format(self.opponent, opponent_mon.name)
-            else:
-                opponent_mon.current_hp = opponent_mon.max_hp
-                cp_xp = opponent_mon.cp
                 opponent_index += 1
-                battle_log += "{}'s {} fainted! {} gained {} xp!\n".format(self.opponent, opponent_mon.name, challenge_mon.name, str(cp_xp + 5))
+            else:
+                # Checks if the challengers Pokemon fainted during the battle
+                # Grants xp to the opponent's Pokemon and checks to see if it has leveled up
+                if challenge_mon.current_hp <= 0:
+                    # Opponent pokemon won
+                    xp = self.calculate_xp(opponent_mon, challenge_mon)
+                    challenge_index += 1
+                    battle_log += "{}'s {} fainted! {} gained {} xp!\n".format(self.challenger, challenge_mon.name, opponent_mon.name, str(xp))
                 
-                if challenge_mon.grant_xp(cp_xp + 5):
-                    battle_log += "Woah! {}'s {} leveled up!\n".format(self.challenger, challenge_mon.name)
+                    if opponent_mon.grant_xp(xp):
+                        battle_log += "Woah! {}'s {} leveled up!\n".format(self.opponent, opponent_mon.name)
+                else:
+                    # Challenger pokemon won
+                    xp = self.calculate_xp(challenge_mon, opponent_mon)
+                    opponent_index += 1
+                    battle_log += "{}'s {} fainted! {} gained {} xp!\n".format(self.opponent, opponent_mon.name, challenge_mon.name, str(xp))
+                    
+                    if challenge_mon.grant_xp(xp):
+                        battle_log += "Woah! {}'s {} leveled up!\n".format(self.challenger, challenge_mon.name)
 
             battle_log += "{} has {} pokemon left, while {} has {} pokemon left!\n\n".format(self.challenger, int(len(challenger_party) - challenge_index), self.opponent, int(len(opponent_party) - opponent_index))
 
-        if opponent_index == len(opponent_party):
-            winner = self.challenger
-            battle_log += "{} is out of usable pokemon! They blacked out!\n".format(self.opponent)
+        # The battle has concluded
+        # Checks to see if both users have run out of usable pokemon, if so it labels this battle as a draw
+        if challenge_index == len(challenger_party) and opponent_index == len(opponent_party):
+            battle_log += "Both trainers are out of usable pokemon! It's a tie!\n"
+            winner = "No one"
         else:
-            winner = self.opponent
-            battle_log += "{} is out of usable pokemon! They blacked out!\n".format(self.challenger)
+            # Checks if the challenger is out of usable pokemon and labels this battle's winner as the opponent
+            if challenge_index == len(challenger_party):
+                winner = self.opponent
+                battle_log += "{} is out of usable pokemon! They blacked out!\n".format(self.challenger)
+            else:
+                winner = self.challenger
+                battle_log += "{} is out of usable pokemon! They blacked out!\n".format(self.opponent)
 
         battle_log += "The battle has concluded! {} is the winner!".format(winner)
-        
         return battle_log
 
-    # Returns the average cp of all pokemon within a list
-    def average_cp(self, party):
-        total_cp = 0
+    # Calculates damage dealt to a pokemon
+    def calculate_damage(self, attacker_poke, reciever_poke):
+        damage_scalar = 2
+        return (int(((((2 * attacker_poke.level) / 5) + 2) * 100 * (attacker_poke.attack / reciever_poke.attack)) / 50) + 2) * damage_scalar
 
-        for poke in party:
-            total_cp += poke.cp
+    # Calculates xp granted to the winning pokemon after a knockout
+    def calculate_xp(self, winning_poke, losing_poke):
+        level_diff = winning_poke.level - losing_poke.level
+        difficulty_bonus = 1
 
-        return total_cp / len(party)
+        if level_diff == 0:
+            return 10
 
-    # Compares two pokemon, returning a tuple that first contains the pokemon with the highest cp
-    # and the second containing the pokemon with the lowest cp
-    def compare_cp(self, poke1, poke2):
-        if poke1.cp > poke2.cp:
+        if level_diff < 0:
+            level_diff *= -1
+
+        for x in range(difficulty_bonus):
+            difficulty_bonus += .2
+
+        return int(10 * level_diff * difficulty_bonus)
+
+    # Compares two pokemon, returning a tuple that first contains the pokemon with the highest speed
+    # and the second containing the pokemon with the lowest speed
+    def compare_speed(self, poke1, poke2):
+        if poke1.speed >= poke2.speed:
             return poke1, poke2
         return poke2, poke1
 
     # Checks to see if the attacker pokemon successfully lands a critical hit dealing x2
     def check_crit(self):
-        return random.randint(0,99) <= 4
+        return random.randint(0,99) <= 2
 
     # Checks to see if the defending pokemon manages to dodge an attack
-    def check_dodge(self, attack, defense):
-        return random.randint(0,int(defense / 3)) >= random.randint(0,attack)
+    # Rolls chance based on defender's speed stat and attacker's attack stat
+    # Returns true if the defender succeeds the dodge
+    def check_dodge(self, attacker_atk, defender_spe):
+        return random.randint(0,int(defender_spe / 3)) >= random.randint(0,attacker_atk)
 
     # Checks to see if the defending pokemon delivers counter attack damage
+    # Rolls chance based on defender's attack stat and attacker's attack stat
+    # Returns true if the defender succeeds the counter
     def check_counter(self, attacker_atk, defender_atk):
         return random.randint(0,int(defender_atk / 3)) >= random.randint(0,attacker_atk)
     
+
 # Class that handles all operations involving saving and accessing pokemon for individual users
 class PokeBank:
     def __init__(self, dir):

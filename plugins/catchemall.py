@@ -864,7 +864,7 @@ class Pokemon:
 
     # Run every level up to adjust stats
     def update_stats(self):
-        for x in range(int(self.xp / 100):
+        for x in range(int(self.xp / 100)):
             self.attack += int(random.randint(1,6) + (self.attack * self.cp_multi))
             self.defence += int(random.randint(1,5) + (self.defence * self.cp_multi))
             self.max_hp += int(random.randint(1,8) + (self.max_hp * self.cp_multi))

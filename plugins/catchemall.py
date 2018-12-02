@@ -253,7 +253,9 @@ class CatchEmAll(Plugin):
             if self.battle_manager.has_party(user):
                 battle = Battle(user, npc.name)
                 self.npc_cooldown.append(user)
-                return battle.simulate_battle(self.battle_manager.get_party(user), npc.party)
+                response = battle.simulate_battle(self.battle_manager.get_party(user), npc.party)
+                self.battle_manager.heal_party(self.battle_manager.get_party(user))
+                return response
             return "Catch em' All: You have not made a party"
         return "Catch em' All: Invalid syntax - use /poke_battle_npc [0-7]"
 
@@ -270,11 +272,11 @@ class CatchEmAll(Plugin):
                 for x in range(rand_spawn):
                     poke = self.poke_manager.generate_pokemon()
                     poke.force_level(random.randint(0,5))
-                    self.current_encounter[poke.name] = poke
+                    self.current_encounter[poke.name.lower()] = poke
 
             for name in self.current_encounter.keys():
                 poke = self.current_encounter[name]
-                response += "{} (cp:{})\n".format(name, str(poke.cp))
+                response += "{} (cp:{})\n".format(poke.name, str(poke.cp))
 
             self.npc_cooldown.clear()
 

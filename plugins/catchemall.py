@@ -59,32 +59,41 @@ class CatchEmAll(Plugin):
         user = command.user.username
         commands = command.args.split(" ")
 
-        if len(commands) == 1:
-            if commands[0] in self.current_encounter.keys():
-                poke = self.current_encounter.pop(commands[0])
-                self.poke_bank.store_mon(user, poke)
-                return "Catch em' All: Congrats " + user + " you caught {} (cp:{})!".format(poke.name, str(poke.cp))
-            return "Catch em' All: An encounter does not exist for that pokemon!"
-        return "Catch em' All: Invalid syntax - use /catch [pokemon_name]"
-        
+        if ',' in command.args:
+            commands = command.args.split(",")
 
+        response = "Catch em' All: Congrats {} you caught:\n".format(user)
+
+        for item in commands:
+            if item in self.current_encounter.keys():
+                poke = self.current_encounter.pop(item)
+                self.poke_bank.store_mon(user, poke)
+                response += "{} (cp:{})!\n".format(poke.name, str(poke.cp))
+        return response
+        
     def com_fight(self, command):
         user = command.user.username
         commands = command.args.split(" ")
 
+        if ',' in command.args:
+            commands = command.args.split(",")
+
         if self.battle_manager.has_party(user):
-            if len(commands) == 1:
-                if commands[0] in self.current_encounter.keys():
-                    battle = Battle(user, "Wild Pokemon")
-                    party = self.battle_manager.get_party(user)
+            encounter = []
+            for item in commands:
+                if item in self.current_encounter.keys():
+                    encounter.append(self.current_encounter.pop(item))
 
-                    response = battle.simulate_battle(party, [self.current_encounter.pop(commands[0])])
-                    self.battle_manager.heal_party(party)
-                    self.poke_bank.save()
+            if len(encounter) > 0:
+                battle = Battle(user, "Wild Pokemon")
+                party = self.battle_manager.get_party(user)
 
-                    return response
-                return "Catch em' All: An encounter does not exist for that pokemon!"
-            return "Catch em' All: Invalid syntax - use /fight [pokemon_name]"
+                response = battle.simulate_battle(party, encounter)
+                self.battle_manager.heal_party(party)
+                self.poke_bank.save()
+
+                return response
+            return "Catch em' All: An encounter does not exist for that pokemon!"
         return "Catch em' All: You have not made a party!"
 
     # Lists all pokemon within a user's pokemon bank (dict) should they exist

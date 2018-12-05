@@ -175,6 +175,22 @@ class CatchEmAll(Plugin):
             return "Catch em' All: Sorry, you are not authorized to use this command!"
         return "Catch em' All: Invalid syntax - use /poke_stat [bank_id]"
 
+    # Admin command to grant a pokemon of a certain level to a specific user
+    def com_grant_level(self, command):
+        user = command.user.username
+        commands = command.args.split(" ")
+
+        if len(commands) == 3: 
+            if user == "Klawk":
+                if self.poke_manager.find_pokemon(commands[1]):
+                    poke = self.poke_manager.generate_exact_pokemon(commands[1])
+                    poke.force_level(int(commands[2]))
+                    self.poke_bank.store_mon(commands[0], poke)
+                    return "Catch em' All: Granted {} the pokemon {}!".format(commands[0], commands[1])
+                return "Catch em' All: Sorry, that pokemon does not exist!"
+            return "Catch em' All: Sorry, you are not authorized to use this command!"
+        return "Catch em' All: Invalid syntax - use /poke_stat [bank_id]"
+
     # Forms a pokemon party
     def com_form_party(self, command):
         user = command.user.username
@@ -271,7 +287,7 @@ class CatchEmAll(Plugin):
             
                 for x in range(rand_spawn):
                     poke = self.poke_manager.generate_pokemon()
-                    poke.force_level(random.randint(0,5))
+                    poke.force_level(random.randint(0,15))
                     self.current_encounter[poke.name.lower()] = poke
 
             for name in self.current_encounter.keys():
@@ -329,12 +345,14 @@ class CatchEmAll(Plugin):
             return {"type": "message", "message": self.com_accept_battle(command)}
         elif command.command == "poke_battle_npc":
             return {"type": "message", "message": self.com_battle_npc(command)}
+        elif command.command == "poke_grant_level":
+            return {"type": "message", "message": self.com_grant_level(command)}
 
     # Commands that are enabled on the server. These are what triggers actions on this plugin
     def get_commands(self):
         return {"poke_enable", "poke_disable", "catch", "fight", "poke_list", "poke_release", "poke_stat",\
                 "poke_trade", "poke_grant", "poke_form_party", "poke_view_party", "poke_post",\
-                "poke_rm_post", "poke_accept_battle", "poke_battle_npc"}
+                "poke_rm_post", "poke_accept_battle", "poke_battle_npc", "poke_grant_level"}
 
     # Returns the name of the plugin
     def get_name(self):

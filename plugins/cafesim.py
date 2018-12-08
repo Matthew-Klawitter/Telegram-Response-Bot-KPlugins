@@ -113,9 +113,9 @@ class CafeSim(Plugin):
 
         # Messages chat channels the game's requirements
         self.message_channels(response)
-        sleep(10)
+        sleep(20)
         self.message_channels("CafeSim: Here we go!")
-        sleep(2)
+        sleep(5)
 
         # Runs until all actions have left the action_queue Queue 
         while not action_queue.empty():
@@ -127,7 +127,7 @@ class CafeSim(Plugin):
             self.action_performed = False
             self.current_task = Task(action.action_name, requirement, role)
             self.message_channels(action.trigger_message + "\n(A {} must perform:\n/csperform {} {})".format(role.name, action.action_name, requirement))
-            sleep(8)
+            sleep(12)
 
             # Determines if the action was performed. If not, then the score is penalized. 
             if self.action_performed:
@@ -139,7 +139,7 @@ class CafeSim(Plugin):
             # Resets current task and bool flag for the next action
             self.current_task = None
             self.action_performed = False
-            sleep(3)
+            sleep(8)
 
         # End of the game logic, rewards score and messages based on performance
         reward = int(reward_amount * performance_score)

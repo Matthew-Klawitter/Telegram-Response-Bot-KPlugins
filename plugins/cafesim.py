@@ -85,7 +85,7 @@ class CafeSim(Plugin):
 
     # Loops and restarts the game based on the var start_time
     def game_loop(self):
-        sleep(10)
+        sleep(20)
         while threading.main_thread().is_alive():
             if len(self.channels) > 0:
                 self.game()

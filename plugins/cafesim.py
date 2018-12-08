@@ -1,4 +1,5 @@
 import datetime
+import queue
 import os
 import random
 import socket
@@ -36,8 +37,8 @@ class CafeSim(Plugin):
         self.action_manager = ActionManager()
         # A dictionary containing the current role a user is set
         self.roles = {}
-        # A dictionary that uses an action name as a key and stores a requirement
-        self.current_action = {}
+        # A Task object that wraps an action name, requirement, and role for a specific action
+        self.current_task = None
         # Flag determining if the current action was successfully performed
         self.action_performed = False
 
@@ -56,19 +57,38 @@ class CafeSim(Plugin):
         return "CafeSim: The role '{}' does not exist!".format(role)
 
     def com_perform(self, command):
+        user = command.user.username
+        commands = command.args.split(" ")
 
+        if self.current_task == None or self.action_performed:
+            return "CafeSim: No services are required at this time."
+
+        if len(commands == 2):
+            if user in self.roles.keys():
+                role = self.roles[user]
+
+                if commands[0] == self.current_task.action_name:
+                    if commands[1] == self.current_task.requirement:
+                        if role == self.current_task.role:
+                            self.action_performed = True
+                            return "CafeSim: You successfully completed the task!"
+                        return "CafeSim: You're not the correct role for the job! We need a {} to handle this!".format(self.current_task.role.name)
+                    return "CafeSim: That's not the requirement we need fulfilled! You need to deal with {}!".format(self.current_task.requirement)
+                return "CafeSim: We don't need that action performed! We are looking for {}!".format(self.current_task.action_name)
+            return "CafeSim: You can join a role with /cs_role [role_name]"
+        return "CafeSim: Invalid syntax - use /cs_perform [action] [requirement]"
 
     def game_loop(self):
         while threading.main_thread().is_alive():
             start_time = random.randint(10,20) # The amount of time until the next game begins
             sleep(start_time)
-            self.start_game()
+            self.game()
 
-    def start_game(self):
-        action_queue = Queue(10)
+    def game(self):
+        action_queue = queue.Queue(10)
         roles = set()
 
-        for x in range(10)
+        for x in range(10):
             action = self.action_manager.pick_action()
             action_queue.put(action)
             roles.add(action.role.name)
@@ -85,24 +105,24 @@ class CafeSim(Plugin):
 
         while not action_queue.empty():
             action = action_queue.get()
-            req = random.choice(action.requirements)
+            requirement = random.choice(action.requirements)
+            role = action.role
 
-            # TODO: Figure out a way to store the action.name, the req, and the required role! or just add self.required_role as a var
-            self.current_action[action.name] = req
             self.action_performed = False
-
-            self.message_channels(action.trigger_message + "\n Perform /cs_perform {} {}".format(action.name, req))
-
-            sleep(20)
+            self.current_task = Task(action.name, requirement, role)
+            self.message_channels(action.trigger_message + "\n (A {} must perform:\n /cs_perform {} {})".format(role.name, action.name, requirement))
+            sleep(8)
 
             if self.action_performed:
-                self.message_channels("Very good work!")
+                self.message_channels("Very good work! Our customers are happy!")
             else:
                 self.message_channels("Terrible work! Your pay's been docked!")
+
+            self.current_task = None
+            self.action_performed = False
             sleep(5)
 
-        self.message_channels("Good work everyone the shift is over! Time to get paid! See you again soon!")
-
+        self.message_channels("Good work everyone, the shift is nowover! Time to get paid! See you again soon!")
 
     def message_channels(self, message):
         for channel in self.channels:
@@ -143,10 +163,12 @@ class CafeSim(Plugin):
                 '/cs_perform [action] [requirement]' to perfrom an action"
 
 
-
+# Wrapper for holding the next action to be performed by a player
 class Task():
     def __init__(self, action_name, requirement, role):
-        
+        self.action_name = action_name
+        self.requirement = requirement
+        self.role = role
 
 
 class ActionManager:
@@ -156,8 +178,14 @@ class ActionManager:
     def build_actions(self):
         return {
             "wait" : Action("wait", "A customer is ready to order! Go wait on them!", ["John", "Jessie", "James", "Jackie"], Role.server),
-            "brew" : Action("brew", "The customer wants a coffee! Go brew one!", ["espresso", "mocha"], Role.barista)
-            "clean" : Action("clean", "There's a mess on the floor! Go clean it!", ["spill", "trash"], Role.cleaner)
+            "collect" : Action("collect", "Some food is ready to be served, go deliver it!", ["pie", "eggs", "pancakes", "turkey_club"], Role.server),
+            "charge" : Action("charge", "A customer is ready to pay!", ["John", "Jessie", "James", "Jackie"], Role.server),
+            "brew" : Action("brew", "The customer wants a coffee! Go brew one!", ["espresso", "mocha"], Role.barista),
+            "grind" : Action("grind", "Some coffee beans need grinding!", ["mocha", "arabica"], Role.barista),
+            "mix" : Action("mix", "A specialty drink needs to be mixed!", ["double_expresso", "pumpkin_latte"], Role.barista),
+            "clean" : Action("clean", "There's a mess on the floor! Go clean it!", ["spill", "trash"], Role.cleaner),
+            "scrub" : Action("scrub", "Stuff is covered in grease and needs scrubbing!", ["grill", "counter"], Role.cleaner),
+            "dust" : Action("dust", "There's dust everywhere and it needs cleaning!", ["walls", "windows"], Role.cleaner),
         }
         
     def pick_action(self):

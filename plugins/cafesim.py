@@ -143,15 +143,21 @@ class CafeSim(Plugin):
                 '/cs_perform [action] [requirement]' to perfrom an action"
 
 
+
+class Task():
+    def __init__(self, action_name, requirement, role):
+        
+
+
 class ActionManager:
     def __init__(self):
         self.actions = self.build_actions()
 
     def build_actions(self):
         return {
-            "wait" : Action("wait", "A customer is ready to order! Go wait on them!", ["John", "Jessie", "James", "Jackie"], Role.server, .2),
-            "brew" : Action("brew", "The customer wants a coffee! Go brew one!", ["espresso", "mocha"], Role.barista, .1)
-            "clean" : Action("clean", "There's a mess on the floor! Go clean it!", ["spill", "trash"], Role.cleaner, .1)
+            "wait" : Action("wait", "A customer is ready to order! Go wait on them!", ["John", "Jessie", "James", "Jackie"], Role.server),
+            "brew" : Action("brew", "The customer wants a coffee! Go brew one!", ["espresso", "mocha"], Role.barista)
+            "clean" : Action("clean", "There's a mess on the floor! Go clean it!", ["spill", "trash"], Role.cleaner)
         }
         
     def pick_action(self):
@@ -166,12 +172,11 @@ class ActionManager:
 
 
 class Action:
-    def __init__(self, action_name, trigger_message, requirements, role, value):
+    def __init__(self, action_name, trigger_message, requirements, role):
         self.action_name = action_name
         self.trigger_message = trigger_message
         self.requirements = requirements
         self.role = role
-        self.value = value
 
 
 class Role(Enum):

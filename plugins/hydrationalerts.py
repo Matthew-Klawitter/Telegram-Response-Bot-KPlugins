@@ -61,7 +61,7 @@ class HydrationAlerts(Plugin):
                     if hour > 12:
                         current_hour -= 12
 
-                    self.message_channels("It is now {} o'Clock! By this point in the day you should have drank {}C ({}L) of water to maintain optimal hydration!").format(current_hour, round(current_cups, 2), round(current_liters, 2))
+                    self.message_channels("It is now {} o'Clock! By this point in the day you should have drank {}C ({}L) of water to maintain optimal hydration!".format(current_hour, round(current_cups, 2), round(current_liters, 2)))
 
             sleep(60*(60 - minutes))
 

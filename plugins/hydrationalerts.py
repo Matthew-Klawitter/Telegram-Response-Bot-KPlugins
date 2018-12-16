@@ -74,10 +74,10 @@ class HydrationAlerts(Plugin):
     def on_command(self, command):
         if command.command == "hydration":
             if command.chat.id in self.channels:
-                return {"type": "message", "message": "I'm already reminding you to stay hydrated!."}
+                return {"type": "message", "message": "I'm already reminding you to stay hydrated!"}
             else:
                 self.channels.add(command.chat.id)
-                return {"type": "message", "message": "Ok! I will remind you to stay hydrated!."}
+                return {"type": "message", "message": "Ok! I will remind you to stay hydrated!"}
         elif command.command == "dehydration":
             if command.chat.id in self.channels:
                 self.channels.remove(command.chat.id)

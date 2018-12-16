@@ -35,7 +35,7 @@ class HydrationAlerts(Plugin):
         self.liter_quantity = .14
 
         # Launches a deamon thread that handles alerts and random encounters
-        thread = threading.Thread(target = self.hydrationalert)
+        thread = threading.Thread(target = self.hydration_alert)
         thread.daemon = True
         thread.start()
 

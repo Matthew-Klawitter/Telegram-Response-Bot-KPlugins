@@ -30,8 +30,12 @@ class MinecraftStatus(Plugin):
         return "The server responded in {}ms".format(self.server.ping())
 
     def get_players(self):
-        query = self.server.query()
-        return "The following players are connected: {}".format(", ".join(query.players.names))
+        status = self.server.status()
+        response = "The following players are connected:\n"
+
+        for player in status.players.sample:
+            response += player.name + "\n"
+        return response
 
     def on_command(self, command):
         if command.command == "mcstatus":

@@ -30,7 +30,7 @@ class MumbleAlerts(Plugin):
         thread.daemon = True
         thread.start()
 
-    def connected_users(self, host="107.170.55.89", port=64738):
+    def connected_users(self, host="localhost", port=64738):
         """ 
             <host> [<port>]
             Ping the server and display results.

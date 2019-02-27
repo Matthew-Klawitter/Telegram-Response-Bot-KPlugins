@@ -45,7 +45,7 @@ class HydrationAlerts(Plugin):
             hour = time.hour
             minutes = time.minute
 
-            if hour == 24:
+            if hour == 0:
                 self.message_channels("Wow it is late! If anyone is still up at this hour remember to stay hydrated! Drink at least .5C (.11L) of water per hour you stay awake!")
                 self.is_day = False
             elif hour == 8:

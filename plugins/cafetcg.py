@@ -27,11 +27,13 @@ class CafeTCG(Plugin):
         if not os.path.exists(self.dir):
             os.makedirs(self.dir)
 
-        self.build_cards()
-        self.pack_manager = PackManager(self.cardlist)
-        self.card_storage = CardManager(self.dir, self.cardlist)
-        self.card_storage.update_accounts()
-        self.account_manager = HonorBank()
+        if self.build_cards():
+            self.pack_manager = PackManager(self.cardlist)
+            self.card_storage = CardManager(self.dir, self.cardlist)
+            self.card_storage.update_accounts()
+            self.account_manager = HonorBank()
+        else:
+            print("Error: CafeTCG: Could not load card data!")
 
     # Builds cards by requesting json data
     def build_cards(self):
@@ -44,8 +46,10 @@ class CafeTCG(Plugin):
                     self.parse_cardlist(card_data["Item"], "Item")
                     self.parse_cardlist(card_data["Location"], "Location")
                     self.parse_cardlist(card_data["Argument"], "Argument")
+            return True
         except NotADirectoryError:
-            print("Yeah I should do something here")  # TODO: Implement
+            print("No data could be loaded.")  # TODO: Implement
+            return False
 
     # Parses and fills a list with card objects
     def parse_cardlist(self, data_list, card_type):

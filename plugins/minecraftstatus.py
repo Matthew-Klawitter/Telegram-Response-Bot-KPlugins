@@ -9,8 +9,8 @@ def load(data_dir, bot):
 
 """
 Created by Matthew Klawitter 1/9/2019
-Last Updated: 2/27/2019
-Version: v1.0.0.0
+Last Updated: 3/3/2019
+Version: v1.1.1.0
 """
 
 
@@ -23,9 +23,10 @@ class MinecraftStatus(Plugin):
 
     def setup(self, command):
         commands = command.args.split(" ")
-        self.host = commands[0]
+        host = commands[0]
         self.server = MinecraftServer.lookup(host)
         self.is_setup = True
+        return "MCStatus: Now pinging {} globally. Use /mcstatus /mcping /mcplayers to receive more information on this server.".format(host)
 
     def get_status(self):
         status = self.server.status()
@@ -46,7 +47,7 @@ class MinecraftStatus(Plugin):
         if command.command == "mcsetup":
             return {"type": "message", "message": self.setup(command)}
 
-        if not self.is_setup():
+        if not self.is_setup:
             return {"type": "message", "message": "MCStatus: Please first run /mcsetup [ip] to configure a server."}
         elif command.command == "mcstatus":
             return {"type": "message", "message": self.get_status()}

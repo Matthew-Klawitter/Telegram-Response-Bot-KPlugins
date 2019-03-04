@@ -12,8 +12,8 @@ def load(data_dir, bot):
 
 """
 Created by Matthew Klawitter 11/15/2017
-Last Updated: 11/22/2017
-Version: v2.2.2.1
+Last Updated: 3/3/2019
+Version: v2.3.2.1
 """
 
 
@@ -32,6 +32,7 @@ class CafeTCG(Plugin):
             self.card_storage = CardManager(self.dir, self.cardlist)
             self.card_storage.update_accounts()
             self.account_manager = HonorBank()
+            self.quest_manager = QuestManager(self.pack_manager)
         else:
             print("Error: CafeTCG: Could not load card data!")
 
@@ -41,26 +42,24 @@ class CafeTCG(Plugin):
             for file in os.listdir(self.dir + "/" + "data"):
                 if file.endswith(".json"):
                     card_data = json.load(open(os.path.join(self.dir + "/" + "data", file)))
-                    self.parse_cardlist(card_data["Character"], "Character")
-                    self.parse_cardlist(card_data["Ability"], "Ability")
-                    self.parse_cardlist(card_data["Item"], "Item")
-                    self.parse_cardlist(card_data["Location"], "Location")
-                    self.parse_cardlist(card_data["Argument"], "Argument")
+                    self.parse_cardlist(card_data)
             return True
         except NotADirectoryError:
-            print("No data could be loaded.")  # TODO: Implement
+            print("No data could be loaded.")
             return False
 
     # Parses and fills a list with card objects
-    def parse_cardlist(self, data_list, card_type):
-        for item in data_list:
-            card_info = {"type": card_type, "name": item["Info"]["Title"], "set": item["Info"]["Set"],
-                         "id": item["Info"]["ID"], "honor": item["Info"]["Honor"], "cred": item["Info"]["Credibility"],
-                         "desc": item["Info"]["Description"], "ability": item["Info"]["Ability"],
-                         "faction": item["Info"]["Faction"], "rarity": item["Info"]["Rarity"]}
-
-            card = Card(card_info)
-            self.cardlist.append(card)
+    def parse_cardlist(self, card_data):
+        for card in card_data:
+            card_info = {
+                        "Title": card["Title"],
+                        "Set": card["Set"],
+                        "Description": card["Description"],
+                        "Faction": card["Faction"],
+                        "Rarity": card["Rarity"],
+                        "Value": card["Value"]
+                        }
+            self.cardlist.append(Card(card_info))
 
     # Returns a card object based on a card name
     def get_card(self, cardname):
@@ -313,8 +312,7 @@ class CafeTCG(Plugin):
 
         if not self.card_storage.account_exists(command.user.username) and not \
                 self.account_manager.account_exists(command.user.username):
-            return {"type": "message", "message": "{} is not a registered player!"
-                                                  " Please register using /tcgregister".format(command.user.username)}
+            return {"type": "message", "message": "{} is not a registered player! Please register using /tcgregister".format(command.user.username)}
         else:
             if command.command == "booster":
                 return {"type": "message", "message": self.open_pack(command)}
@@ -354,12 +352,19 @@ class CafeTCG(Plugin):
                 "selldups"}
 
     def get_name(self):
-        return "Cafe TCG"
+        return "CafeTCG"
 
     def get_help(self):
-        return "/booster [packname] \n /read [cardname] \n /sell [cardname] \n /collection \n " \
-               "/trade [@user] [cardname] \n /balance \n /pay [@user] [amount] \n /tcgregister \n" \
-               "/missing \n /selldups"
+        return "/booster [packname] \n" \
+               "/read [cardname] \n" \
+               "/sell [cardname] \n" \
+               "/collection \n" \
+               "/trade [@user] [cardname] \n" \
+               "/balance \n"\
+               "/pay [@user] [amount] \n" \
+               "/tcgregister \n" \
+               "/missing \n" \
+               "/selldups"
 
 
 """
@@ -369,28 +374,20 @@ Stores basic information on cards
 
 class Card:
     def __init__(self, card_info):
-        self.card_type = card_info["type"]
-        self.card_id = card_info["id"]
-        self.card_set = card_info["set"]
-        self.name = card_info["name"]
-        self.honor = card_info["honor"]
-        self.cred = card_info["cred"]
-        self.desc = card_info["desc"]
-        self.ability = card_info["ability"]
-        self.faction = card_info["faction"]
-        self.rarity = card_info["rarity"]
+        self.name = card_info["Title"]
+        self.card_set = card_info["Set"]
+        self.desc = card_info["Description"]
+        self.faction = card_info["Faction"]
+        self.rarity = card_info["Rarity"]
+        self.value = card_info["Value"]
 
     def long_desc(self):
-        long_desc = "Type: " + str(self.card_type) + "\n"
-        long_desc += "ID: " + str(self.card_id) + "\n"
+        long_desc = "Name: " + str(self.name) + "\n"
         long_desc += "Set: " + str(self.card_set) + "\n"
-        long_desc += "Name: " + str(self.name) + "\n"
-        long_desc += "Value: " + str(self.honor) + "\n"
-        long_desc += "Credibility: " + str(self.cred) + "\n"
         long_desc += "Description:" + str(self.desc) + "\n"
-        long_desc += "Ability: " + str(self.ability) + "\n"
         long_desc += "Faction: " + str(self.faction) + "\n"
-        long_desc += "Rarity: " + str(self.rarity)
+        long_desc += "Rarity: " + str(self.rarity) + "\n"
+        long_desc += "Value: " + str(self.value) + "\n"
         return long_desc
 
 
@@ -440,7 +437,7 @@ class CardPack:
             # 13% odds at rare
             elif 86 <= rand <= 98:
                 card_pack.append(self.draw_card(self.rare_list))
-            # 2%
+            # 3%
             else:
                 card_pack.append(self.draw_card(self.ultra_rare_list))
         return card_pack
@@ -451,6 +448,13 @@ class CardPack:
         for card in self.card_list:
             set_collection += card.name + "\n"
         return set_collection
+
+
+"""
+Manages loaded card packs
+Organizes packs by sets
+Contains methods to open packs
+"""
 
 
 class PackManager:
@@ -476,6 +480,12 @@ class PackManager:
 
     def open_pack(self, pack_name):
         return self.cardpacks[pack_name].open_card_pack()
+    
+    def open_multiple(self, pack_name, quantity):
+        opened_cards = []
+        for x in range(0, quantity):
+            opened_cards += self.cardpacks[pack_name].open_card_pack()
+        return opened_cards
 
     def pack_exists(self, pack_name):
         return self.cardpacks[pack_name]
@@ -515,7 +525,7 @@ class CardManager:
             f.close()
 
     # Updates json data for user accounts when new card sets are added
-    # IMPORTANT: IF A SET IS REMOVED ALL CARDS IN A USERS JSON DATA WILL BE REMOVED!
+    # IMPORTANT: IF A SET IS REMOVED ALL CARDS FROM THAT SET IN A USERS JSON DATA WILL BE REMOVED!
     def update_accounts(self):
         try:
             for file in os.listdir(self.dir):
@@ -607,24 +617,31 @@ class CardManager:
             return collection
 
 
+"""
+Holds information on an individual quest
+Randomly generates quest names, descriptions, and type
+"""
+
+
 class Quest:
     def __init__(self, pack_manager, pack_list):
-        self.pack_manager = pack_manager
-        self.pack_list = pack_list
-        self.cost = {} # Done
-        self.reward = {} # Done
-        self.quest_name = "" # TODO: Finish
-        self.desc = "" # TODO: Finish
-        self.quest_type = "" # Done
+        self.cost = {}
+        self.reward = {}
+        self.quest_type = ""
         self.completed = False
 
-    def create_quest(self):
+        self.create_quest(pack_manager, pack_list)
+
+        self.name = self.generate_name()
+        self.desc = self.generate_desc()
+
+    def create_quest(self, pack_manager, pack_list):
         rand_award = random.randint(0, 2)
         self.cost = {}
         self.reward = {}
 
         if rand_award == 0:  # Looks like the reward is honor!
-            rand_honor = random.randint(50, 1801)
+            rand_honor = random.randint(50, 1500)
             self.reward["Honor"] = rand_honor
         elif rand_award == 1:  # Looks like the reward is a card!
             rand_pack = random.randint(0, len(self.pack_list))
@@ -645,12 +662,12 @@ class Quest:
                 quantity = random.randint(1,4)
                 card = self.pack_manager.pack_exists(pack).draw_card("Rare")
             elif rand_rarity == 3:
-                quantity = 1
+                quantity = random.randint(1,2)
                 card = self.pack_manager.pack_exists(pack).draw_card("Ultra-Rare")
             self.reward["Card"] = card
             self.reward["Quantity"] = quantity
 
-        if rand_award == 0: # Looks like quest requirement is a card to get honor!
+        if rand_award == 0: # Quest requirement is cards
             pack = random.randint(0, len(self.pack_list))
             self.quest_type = "Card"
             honor = self.reward["Quantity"]
@@ -670,34 +687,59 @@ class Quest:
 
             self.cost["Card"] = card
             self.cost["Quantity"] = quantity
-        elif rand_award == 1: # Looks like quest requirement is honor to get some cards!
+        elif rand_award == 1: # Quest requirement is honor
             self.quest_type = "Honor"
-            quantity = 0
+            honor_required = 0
             rarity = self.reward["Card"].rarity
 
             if rarity == "Common":
-                quantity = random.randint(25, 151)
+                honor_required = random.randint(25, 151)
             elif rarity == "Uncommon":
-                quantity = random.randint(50, 351)
+                honor_required = random.randint(50, 351)
             elif rarity == "Rare":
-                quantity = random.randint(100, 601)
+                honor_required = random.randint(100, 601)
             elif rarity == "Ultra-Rare":
-                quantity = random.randint(200, 1201)
-            self.cost["Honor"] = quantity
+                honor_required = random.randint(200, 1201)
+            self.cost["Honor"] = honor_required
+
 
     def generate_name(self):
-        rand_name = random.randint(0,51)
+        rand_name = random.randint(0,20)
+        names = ["Robin Banks","Doge","T-Series","Steve Clarney","Michard Klawkins","King Arthur","Danny Devito","Rick Astley","Mr. X","Captain Toad","Todd Howard","SonicFox","John Cena","Ethan Bradberry","Strange Rope Hero","Rugged Randal","Stig Turner","Redd","Snake","Walter W."]
+        return names[rand_name]
 
-    def generate_lore(self):
-        rand_lore = random.randint(0,101)
+    def generate_desc(self):
+        rand_desc = random.randint(0,20)
+        desc = ["Their merry band requires it for support during a raid!","Such mystery, amazing, reward, wow!","They're ahead in the subscriber war, and need it to secure the win!","They have uncovered a secret passage in a tomb, and believes it may act as a clue",
+        "They have uncovered hidden lore in a tome, and believe acquiring this will lead to answers!","They found a sword in a stone and believe it may be wedged out by aquiring this supplies!",
+        "Never wants to give you up, and assuredly won't if you give them these items.","They're gonna give it to ya unless you pay up!","They are looking to find new treasures and want to add this to their collection!",
+        "Unless you complete this request, they're going to try to sell you Skyrim.","Their fightstick broke, and they believe it will help them win the EVO championship!",
+        "They're a collector of such things, and would be happy to have it.","They require it to complete a social experiment.","They're a bit of a geek, and it will help keep them focused on fighting crime.","They want some cool artifacts to decorate up their truck.",
+        "They're adrift in space and could use it as fuel!","They grow bored on their darwinistic island and wants to start a card collection.","They're starting a shady business, and believe it serves as an important ingredient",
+        "They aquired a forgery at auction, and want to get a replacement.","They're addicted to cards, and aren't sure what to do."]
+        return desc = [rand_desc]
 
-    def generate_quest_name(self):
-        return None
+    def lore_string(self):
+        if self.quest_type == "Card":
+            return "{} is in dire need of the card {}! {}".format(self.name, self.cost["Card"].name, self.desc)
+        else:
+            return "{} is in great need of {} honor! {}".format(self.name, self.cost["Honor"], self.desc)
+
+    def requirements_string(self):
+        if self.quest_type == "Card":
+            return "{} requires {} {} card(s) and offers {} honor for them!".format(self.name, self.cost["Quantity"], self.cost["Card"].name, self.reward["Quantity"])
+        else:
+            return "{} requires {} honor and offers a {} card!".format(self.name, self.cost["Honor"], self.reward["Card"].name)
+
+
+"""
+Manages and generates Quest objects
+Contains methods to view information on quests and complete them
+"""
 
 
 class QuestManager:
-    def __init__(self, directory, pack_manager):
-        self.dir = directory
+    def __init__(self, pack_manager):
         self.pack_manager = pack_manager
         self.packs = []
         for pack in self.pack_manager.cardpacks:
@@ -707,13 +749,6 @@ class QuestManager:
     def make_quest(self):
         self.quests.append(Quest(self.pack_manager, self.packs))
         return "CafeTCG: A new quest has been created!"
-
-    def check_quests(self):
-        message = "CafeTCG: The following are completed quests: \n"
-        for quest in self.quests:
-            if quest.completed:
-                message += quest.name + "\n"
-        return message
 
     def available_quests(self):
         message = "CafeTCG: The following are available quests: \n"
@@ -731,7 +766,7 @@ class QuestManager:
         if self.quest_exists(quest_name):
             for quest in self.quests:
                 if quest.name == quest_name:
-                    return quest.desc
+                    return "CafeTCG:" + quest.lore_string() + "\n({})".format(quest.requirements_string())
         return "CafeTCG: Quest does not exist!"
 
     def turn_in(self, player, quest_name):

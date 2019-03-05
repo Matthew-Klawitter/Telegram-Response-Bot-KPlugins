@@ -363,6 +363,10 @@ class CafeTCG(Plugin):
                "/balance \n"\
                "/pay [@user] [amount] \n" \
                "/tcgregister \n" \
+               "/completion \n" \
+               "/packs \n" \
+               "/changelog \n" \
+               "/contents [packname] \n" \
                "/missing \n" \
                "/selldups"
 

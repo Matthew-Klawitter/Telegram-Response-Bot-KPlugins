@@ -32,7 +32,7 @@ class CafeTCG(Plugin):
             self.card_storage = CardManager(self.dir, self.cardlist)
             self.card_storage.update_accounts()
             self.account_manager = HonorBank()
-            self.quest_manager = QuestManager(self.pack_manager)
+            #self.quest_manager = QuestManager(self.pack_manager)
         else:
             print("Error: CafeTCG: Could not load card data!")
 

@@ -717,7 +717,7 @@ class Quest:
         "They're a collector of such things, and would be happy to have it.","They require it to complete a social experiment.","They're a bit of a geek, and it will help keep them focused on fighting crime.","They want some cool artifacts to decorate up their truck.",
         "They're adrift in space and could use it as fuel!","They grow bored on their darwinistic island and wants to start a card collection.","They're starting a shady business, and believe it serves as an important ingredient",
         "They aquired a forgery at auction, and want to get a replacement.","They're addicted to cards, and aren't sure what to do."]
-        return desc = [rand_desc]
+        return desc[rand_desc]
 
     def lore_string(self):
         if self.quest_type == "Card":

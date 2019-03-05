@@ -99,7 +99,7 @@ class CafeTCG(Plugin):
     # Sells a card to obtain honor
     def sell_card(self, command):
         if self.card_storage.remove_card(command.user.username, command.args):
-            value = self.get_card(command.args).honor
+            value = self.get_card(command.args).value
 
             self.account_manager.pay(command.user.username, value)
             self.account_manager.save_accounts()
@@ -299,7 +299,7 @@ class CafeTCG(Plugin):
                     while collection[key] > 1:
                         collection[key] = collection[key] - 1
                         self.card_storage.remove_card(command.user.username, key.name)
-                        value = self.get_card(key.name).honor
+                        value = self.get_card(key.name).value
                         total_cards += 1
                         total_value += value
                         self.account_manager.pay(command.user.username, value)

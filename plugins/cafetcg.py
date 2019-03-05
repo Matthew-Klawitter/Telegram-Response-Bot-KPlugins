@@ -644,8 +644,8 @@ class Quest:
             rand_honor = random.randint(50, 1500)
             self.reward["Honor"] = rand_honor
         elif rand_award == 1:  # Looks like the reward is a card!
-            rand_pack = random.randint(0, len(self.pack_list))
-            pack = self.pack_list[rand_pack]
+            rand_pack = random.randint(0, len(pack_list))
+            pack = pack_list[rand_pack]
 
             rand_rarity = random.randint(0, 4)
 
@@ -654,36 +654,36 @@ class Quest:
 
             if rand_rarity == 0:
                 quantity = random.randint(1, 11)
-                card = self.pack_manager.pack_exists(pack).draw_card("Common")
+                card = pack_manager.pack_exists(pack).draw_card("Common")
             elif rand_rarity == 1:
                 quantity = random.randint(1, 9)
-                card = self.pack_manager.pack_exists(pack).draw_card("Uncommon")
+                card = pack_manager.pack_exists(pack).draw_card("Uncommon")
             elif rand_rarity == 2:
                 quantity = random.randint(1,4)
-                card = self.pack_manager.pack_exists(pack).draw_card("Rare")
+                card = pack_manager.pack_exists(pack).draw_card("Rare")
             elif rand_rarity == 3:
                 quantity = random.randint(1,2)
-                card = self.pack_manager.pack_exists(pack).draw_card("Ultra-Rare")
+                card = pack_manager.pack_exists(pack).draw_card("Ultra-Rare")
             self.reward["Card"] = card
             self.reward["Quantity"] = quantity
 
         if rand_award == 0: # Quest requirement is cards
-            pack = random.randint(0, len(self.pack_list))
-            self.quest_type = "Card"
+            pack = random.randint(0, len(pack_list))
+            quest_type = "Card"
             honor = self.reward["Quantity"]
 
             if 50 <= honor <= 300:
                 quantity = random.randint(1, 11)
-                card = self.pack_manager.pack_exists(pack).draw_card("Common")
+                card = pack_manager.pack_exists(pack).draw_card("Common")
             elif 301 <= honor <= 600:
                 quantity = random.randint(1, 9)
-                card = self.pack_manager.pack_exists(pack).draw_card("Uncommon")
+                card = pack_manager.pack_exists(pack).draw_card("Uncommon")
             elif 601 <= honor <= 1001:
                 quantity = random.randint(1, 4)
-                card = self.pack_manager.pack_exists(pack).draw_card("Rare")
+                card = pack_manager.pack_exists(pack).draw_card("Rare")
             else:
                 quantity = random.randint(1, 2)
-                card = self.pack_manager.pack_exists(pack).draw_card("Ultra-Rare")
+                card = pack_manager.pack_exists(pack).draw_card("Ultra-Rare")
 
             self.cost["Card"] = card
             self.cost["Quantity"] = quantity

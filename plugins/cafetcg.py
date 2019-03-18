@@ -705,7 +705,8 @@ class Quest:
             self.reward["Quantity"] = quantity
 
         if rand_award == 0: # Quest requirement is cards
-            pack = random.randint(0, len(pack_list))
+            rand_pack = random.randint(0, len(pack_list))
+            pack = pack_list[rand_pack]
             self.quest_type = "Card"
             honor = self.reward["Quantity"]
 
@@ -758,15 +759,15 @@ class Quest:
 
     def lore_string(self):
         if self.quest_type == "Card":
-            return "{} is in dire need of the card {}! {}".format(self.name, self.cost["Card"].name, self.desc)
+            return "{} is in dire need of the card {}! {}".format(self.name, self.cost["Card"], self.desc)
         else:
             return "{} is in great need of {} honor! {}".format(self.name, self.cost["Honor"], self.desc)
 
     def requirements_string(self):
         if self.quest_type == "Card":
-            return "{} requires {} {} card(s) and offers {} honor for them!".format(self.name, self.cost["Quantity"], self.cost["Card"].name, self.reward["Quantity"])
+            return "{} requires {} {} card(s) and offers {} honor for them!".format(self.name, self.cost["Quantity"], self.cost["Card"], self.reward["Quantity"])
         else:
-            return "{} requires {} honor and offers a {} card!".format(self.name, self.cost["Honor"], self.reward["Card"].name)
+            return "{} requires {} honor and offers a {} card!".format(self.name, self.cost["Honor"], self.reward["Card"])
 
 
 """
@@ -779,7 +780,7 @@ class QuestManager:
     def __init__(self, pack_manager):
         self.pack_manager = pack_manager
         self.packs = []
-        for pack in self.pack_manager.cardpacks:
+        for pack in self.pack_manager.cardpacks.keys():
             self.packs.append(pack)
         self.quests = []
 

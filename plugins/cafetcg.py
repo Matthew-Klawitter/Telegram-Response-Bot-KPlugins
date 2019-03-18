@@ -687,16 +687,20 @@ class Quest:
 
             if rand_rarity == 0:
                 quantity = random.randint(1, 11)
-                card = pack_manager.pack_exists(pack).draw_card("Common")
+                pack = pack_manager.pack_exists(pack)
+                card = pack.draw_card(pack.common_list)
             elif rand_rarity == 1:
                 quantity = random.randint(1, 9)
-                card = pack_manager.pack_exists(pack).draw_card("Uncommon")
+                pack = pack_manager.pack_exists(pack)
+                card = pack.draw_card(pack.uncommon_list)
             elif rand_rarity == 2:
                 quantity = random.randint(1,4)
-                card = pack_manager.pack_exists(pack).draw_card("Rare")
+                pack = pack_manager.pack_exists(pack)
+                card = pack.draw_card(pack.rare_list)
             elif rand_rarity == 3:
                 quantity = random.randint(1,2)
-                card = pack_manager.pack_exists(pack).draw_card("Ultra-Rare")
+                pack = pack_manager.pack_exists(pack)
+                card = pack.draw_card(pack.ultra_rare_list)
             self.reward["Card"] = card
             self.reward["Quantity"] = quantity
 

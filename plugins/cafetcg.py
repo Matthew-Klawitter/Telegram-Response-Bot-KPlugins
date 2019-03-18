@@ -32,7 +32,7 @@ class CafeTCG(Plugin):
             self.card_storage = CardManager(self.dir, self.cardlist)
             self.card_storage.update_accounts()
             self.account_manager = HonorBank()
-            self.quest_manager = QuestManager(self.pack_manager)
+            # self.quest_manager = QuestManager(self.pack_manager)
         else:
             print("Error: CafeTCG: Could not load card data!")
 
@@ -361,14 +361,14 @@ class CafeTCG(Plugin):
                 return {"type": "message", "message": self.award_card(command)}
             elif command.command == "selldups":
                 return {"type": "message", "message": self.sell_duplicates(command)}
-            elif command.command == "makequest":
-                return {"type": "message", "message": self.make_quest(command)}
-            elif command.command == "availablequests":
-                return {"type": "message", "message": self.list_quests(command)}
-            elif command.command == "readquest":
-                return {"type": "message", "message": self.read_quest(command)}
-            elif command.command == "completequest":
-                return {"type": "message", "message": self.complete_quest(command)}
+            # elif command.command == "makequest":
+            #     return {"type": "message", "message": self.make_quest(command)}
+            # elif command.command == "availablequests":
+            #     return {"type": "message", "message": self.list_quests(command)}
+            # elif command.command == "readquest":
+            #     return {"type": "message", "message": self.read_quest(command)}
+            # elif command.command == "completequest":
+            #     return {"type": "message", "message": self.complete_quest(command)}
 
     def get_commands(self):
         return {"booster", "read", "sell", "collection", "trade",

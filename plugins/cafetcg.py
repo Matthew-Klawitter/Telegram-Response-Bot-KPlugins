@@ -675,7 +675,7 @@ class Quest:
 
         if rand_award == 0:  # Looks like the reward is honor!
             rand_honor = random.randint(50, 1500)
-            self.reward["Honor"] = rand_honor
+            self.reward["Quantity"] = rand_honor
         elif rand_award == 1:  # Looks like the reward is a card!
             rand_pack = random.randint(0, len(pack_list))
             pack = pack_list[rand_pack]
@@ -783,6 +783,9 @@ class QuestManager:
             self.packs.append(pack)
         self.quests = []
 
+        for x in range(3):
+            self.make_quest()
+
     def make_quest(self):
         self.quests.append(Quest(self.pack_manager, self.packs))
         return "CafeTCG: A new quest has been created!"
@@ -800,10 +803,9 @@ class QuestManager:
         return False
 
     def read_quest(self, quest_name):
-        if self.quest_exists(quest_name):
-            for quest in self.quests:
-                if quest.name == quest_name:
-                    return "CafeTCG:" + quest.lore_string() + "\n({})".format(quest.requirements_string())
+        for quest in self.quests:
+            if quest.name == quest_name:
+                return "CafeTCG:" + quest.lore_string() + "\n({})".format(quest.requirements_string())
         return "CafeTCG: Quest does not exist!"
 
     def turn_in(self, user, card_storage, account_manager, quest_name):

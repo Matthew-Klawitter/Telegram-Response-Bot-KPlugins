@@ -835,7 +835,7 @@ class QuestManager:
                     reward_quantity = quest.reward["Quantity"]
                     requirement = quest.cost["Honor"]
 
-                    if account_manager.charge(requirement):
+                    if account_manager.charge(user, requirement):
                         for x in range(reward_quantity):
                             card_storage.add_card(user, card_reward)
                         self.quests.remove(quest)

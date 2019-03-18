@@ -315,7 +315,7 @@ class CafeTCG(Plugin):
     def list_quests(self, command):
         return self.quest_manager.available_quests()
 
-    def read_quests(self, command):
+    def read_quest(self, command):
         return self.quest_manager.read_quest(command.args)
 
     def complete_quest(self, command):

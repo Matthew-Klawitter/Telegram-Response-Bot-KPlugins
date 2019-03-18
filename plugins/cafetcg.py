@@ -32,7 +32,7 @@ class CafeTCG(Plugin):
             self.card_storage = CardManager(self.dir, self.cardlist)
             self.card_storage.update_accounts()
             self.account_manager = HonorBank()
-            #self.quest_manager = QuestManager(self.pack_manager)
+            self.quest_manager = QuestManager(self.pack_manager)
         else:
             print("Error: CafeTCG: Could not load card data!")
 
@@ -306,6 +306,23 @@ class CafeTCG(Plugin):
 
             return "CafeTCG: You have sold {} card(s) for {} honor!".format(total_cards, total_value)
 
+    def make_quest(self, command):
+        if command.user.username == "Klawk":
+            self.quest_manager.make_quest()
+            return "CafeTCG: Successfully created a new quest!"
+        return "CafeTCG: Don't go messing around with admin commands you little hacker you!"
+
+    def list_quests(self, command):
+        return self.quest_manager.available_quests()
+
+    def read_quests(self, command):
+        return self.quest_manager.read_quest(command.args)
+
+    def complete_quest(self, command):
+        user = command.user.username
+        quest_name = command.args
+        return self.quest_manager.turn_in(user, self.card_storage, self.account_manager, quest_name)
+
     def on_command(self, command):
         if command.command == "tcgregister":
             return {"type": "message", "message": self.register(command)}
@@ -344,31 +361,43 @@ class CafeTCG(Plugin):
                 return {"type": "message", "message": self.award_card(command)}
             elif command.command == "selldups":
                 return {"type": "message", "message": self.sell_duplicates(command)}
+            elif command.command == "makequest":
+                return {"type": "message", "message": self.make_quest(command)}
+            elif command.command == "availablequests":
+                return {"type": "message", "message": self.list_quests(command)}
+            elif command.command == "readquest":
+                return {"type": "message", "message": self.read_quest(command)}
+            elif command.command == "completequest":
+                return {"type": "message", "message": self.complete_quest(command)}
 
     def get_commands(self):
         return {"booster", "read", "sell", "collection", "trade",
                 "balance", "pay", "tcgregister", "completion", "packs",
                 "changelog", "contents", "missing", "awardhonor", "awardcard",
-                "selldups"}
+                "selldups", "makequest", "availablequests", "readquest", "completequest"}
 
     def get_name(self):
         return "CafeTCG"
 
     def get_help(self):
-        return "/booster [packname] \n" \
-               "/read [cardname] \n" \
-               "/sell [cardname] \n" \
-               "/collection \n" \
-               "/trade [@user] [cardname] \n" \
-               "/balance \n"\
-               "/pay [@user] [amount] \n" \
-               "/tcgregister \n" \
-               "/completion \n" \
-               "/packs \n" \
-               "/changelog \n" \
-               "/contents [packname] \n" \
-               "/missing \n" \
-               "/selldups"
+        return  "/booster [packname] \n" \
+                "/read [cardname] \n" \
+                "/sell [cardname] \n" \
+                "/collection \n" \
+                "/trade [@user] [cardname] \n" \
+                "/balance \n"\
+                "/pay [@user] [amount] \n" \
+                "/tcgregister \n" \
+                "/completion \n" \
+                "/packs \n" \
+                "/changelog \n" \
+                "/contents [packname] \n" \
+                "/missing \n" \
+                "/selldups \n" \
+                "/makequest \n" \
+                "/availablequests \n" \
+                "/readquest [quest_name] \n" \
+                "/completequest [quest_name]\n"
 
 
 """
@@ -673,7 +702,7 @@ class Quest:
 
         if rand_award == 0: # Quest requirement is cards
             pack = random.randint(0, len(pack_list))
-            quest_type = "Card"
+            self.quest_type = "Card"
             honor = self.reward["Quantity"]
 
             if 50 <= honor <= 300:
@@ -773,5 +802,39 @@ class QuestManager:
                     return "CafeTCG:" + quest.lore_string() + "\n({})".format(quest.requirements_string())
         return "CafeTCG: Quest does not exist!"
 
-    def turn_in(self, player, quest_name):
-        return None
+    def turn_in(self, user, card_storage, account_manager, quest_name):
+        if not card_storage.account_exists(user):
+            card_storage.create_account(user)
+
+        if not account_manager.account_exists(user):
+            account_manager.create_account(user)
+
+        for quest in self.quests:
+            if quest.name == quest_name:
+                if quest.quest_type == "Card":
+                    honor_reward = quest.reward["Honor"]
+                    requirement = quest.cost["Card"].name
+                    requirement_quantity = quest.cost["Quantity"]
+
+                    user_collection = card_storage.get_collection_list(user)
+
+                    if user_collection[requirement] >= requirement_quantity:
+                        for x in range(requirement_quantity):
+                            card_storage.remove_card(user, requirement)
+                        account_manager.pay(user, honor_reward)
+                        self.quests.remove(quest)
+                        return "CafeTCG: Quest completed! You got {} honor for {} {}!".format(honor_reward, requirement_quantity, requirement)
+                    return "CafeTCG: You do not possess enough of that card!"
+
+                else:
+                    card_reward = quest.reward["Card"].name
+                    reward_quantity = quest.reward["Quantity"]
+                    requirement = quest.cost["Honor"]
+
+                    if account_manager.charge(requirement):
+                        for x in range(reward_quantity):
+                            card_storage.add_card(user, card_reward)
+                        self.quests.remove(quest)
+                        return "CafeTCG: Quest completed! You got {} {} for {} honor".format(reward_quantity, card_reward, requirement)
+                    return "CafeTCG: You do not have enough honor to complete this quest!"
+        return "CafeTCG: That quest does not exist!"

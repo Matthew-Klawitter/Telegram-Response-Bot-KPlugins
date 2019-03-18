@@ -306,7 +306,7 @@ class Pal():
             self.status_image = self.dir + "/assets/{}/dead.png".format(self.species)
             return
 
-        self.clean -= 1
+        self.clean -= 4
         self.hunger -= 2
         self.age += 1
         
@@ -326,11 +326,11 @@ class Pal():
 
         if 95 <= self.clean < 100:
             self.health += 2
-            self.mood += 1
         elif 75 <= self.clean < 95:
             self.health += 1
         elif 50 <= self.clean < 75:
             self.health -= 1
+            self.mood -= 1
         elif 25 <= self.clean < 50:
             self.health -= 2
             self.mood -= 1
@@ -342,6 +342,8 @@ class Pal():
 
         if self.received_attention:
             self.mood += 1
+        else:
+            self.mood -= 1
 
         if self.mood > 9:
             self.mood = 9
@@ -350,20 +352,15 @@ class Pal():
 
         if self.mood == Mood.elated.value:
             self.health += 3
-            self.mood += 1
-            self.clean += 10
+            self.clean += 1
             self.status_image = self.dir + "/assets/{}/elated.png".format(self.species)
         elif self.mood == Mood.delighted.value:
             self.health += 2
-            self.mood += 1
-            self.clean += 10
             self.status_image = self.dir + "/assets/{}/delighted.png".format(self.species)
         elif self.mood == Mood.happy.value:
             self.health += 1
-            self.clean += 5
             self.status_image = self.dir + "/assets/{}/happy.png".format(self.species)
         elif self.mood == Mood.amused.value:
-            self.clean += 1
             self.status_image = self.dir + "/assets/{}/amused.png".format(self.species)
         elif self.mood == Mood.tame.value:
             self.mood += 0
@@ -379,21 +376,18 @@ class Pal():
             self.status_image = self.dir + "/assets/{}/sad.png".format(self.species)
         elif self.mood == Mood.depressed.value:
             self.health -= 2
-            self.mood -= 1
-            self.hunger -= 5
-            self.clean -= 5
+            self.hunger -= 2
+            self.clean -= 2
             self.status_image = self.dir + "/assets/{}/depressed.png".format(self.species)
         elif self.mood == Mood.dejected.value:
             self.health -= 3
-            self.mood -= 1
-            self.hunger -= 5
-            self.clean -= 5
+            self.hunger -= 3
+            self.clean -= 3
             self.status_image = self.dir + "/assets/{}/dejected.png".format(self.species)
         elif self.mood == Mood.defeated.value:
             self.health -= 5
-            self.mood -= 1
-            self.hunger -= 10
-            self.clean -= 5
+            self.hunger -= 4
+            self.clean -= 4
             self.status_image = self.dir + "/assets/{}/defeated.png".format(self.species)
 
         if self.mood > 9:

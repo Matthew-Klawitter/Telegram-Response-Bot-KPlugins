@@ -85,7 +85,7 @@ class MumbleAlerts(Plugin):
 
                 for channel in self.channels:
                     self.bot.send_message(channel, message)
-            sleep(1)
+            sleep(10)
 
     def on_command(self, command):
         if command.command == "enablemumble":

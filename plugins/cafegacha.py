@@ -65,7 +65,7 @@ class CafeGacha(Plugin):
         response = "CafeGacha: You own the following:\n"
         
         for gacha in gacha_owned:
-            response += "{} | {}".format(gacha[0], gacha[1])
+            response += "{} | {}\n".format(gacha[0], gacha[1])
         return response
 
     def com_trade(self, command):

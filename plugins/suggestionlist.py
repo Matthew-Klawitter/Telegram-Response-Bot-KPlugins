@@ -28,7 +28,7 @@ class Suggestions(Plugin):
 
     def com_suggest(self, command):
         suggestion = command.args
-        
+
         if suggestion in self.list.keys():
             self.list[suggestion] += 1
         else:
@@ -51,7 +51,7 @@ class Suggestions(Plugin):
         return response
 
     def com_pick(self, command):
-        random_suggestion = random.choice(self.list.keys())
+        random_suggestion = random.choice(list(self.list.keys()))
         return "Randomly selected {}".format(random_suggestion)
 
     # Run whenever someone on telegram types one of these commands

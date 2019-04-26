@@ -92,7 +92,7 @@ class Quotes(Plugin):
     def on_command(self, command):
         if command.command == "qadd":
             return {"type": "message", "message": self.com_add(command)}
-        elif command.command == "arm":
+        elif command.command == "qrm":
             return {"type": "message", "message": self.com_remove(command)}
         elif command.command == "qlist":
             return {"type": "message", "message": self.com_list(command)}

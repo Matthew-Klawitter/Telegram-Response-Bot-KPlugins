@@ -35,9 +35,9 @@ class Quotes(Plugin):
         return "Quotes: Added quote {} : {}".format(len(self.quotes) - 1, quote)
 
     def com_remove(self, command):
-        quote_number = command.args
+        quote_number = int(command.args)
 
-        if (isinstance(quote_number, int) and 0 <= quote_number < len(self.quotes)):
+        if (0 <= quote_number < len(self.quotes)):
             self.quotes.remove(quote_number)
             self.save()
             return "Quotes: Successfully removed quote number {}".format(quote_number)
@@ -47,9 +47,9 @@ class Quotes(Plugin):
         return "Quotes: There are {} quotes available!".format(len(self.quotes))
 
     def com_view(self, command):
-        quote_number = command.args
+        quote_number = int(command.args)
 
-        if (isinstance(quote_number, int) and 0 <= quote_number < len(self.quotes)):
+        if (0 <= quote_number < len(self.quotes)):
             return "Quote #{}: {}".format(quote_number, self.quotes[quote_number])
         return "Quotes: The quote at {} doesn't seem to exist, it may be out of bounds or not an int.".format(quote_number)
 

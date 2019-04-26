@@ -111,9 +111,9 @@ class Quotes(Plugin):
 
     # Run whenever someone types /help GroupNews
     def get_help(self):
-        return "Commands: \n, \
-                '/qadd [quote]' \n,\
-                '/qrm [quote]' \n, \
-                '/qlist' \n, \
-                '/qview' [number]' \
-                '/qrandom' \n" 
+        return "Commands: \n", \
+                "'/qadd [quote]' \n,"\
+                "'/qrm [quote]' \n," \
+                "'/qlist' \n," \
+                "'/qview' [number]'" \
+                "'/qrandom' \n" 

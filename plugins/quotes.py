@@ -38,7 +38,7 @@ class Quotes(Plugin):
         quote_number = int(command.args)
 
         if (0 <= quote_number < len(self.quotes)):
-            self.quotes.remove(quote_number)
+            del self.quotes[quote_number]
             self.save()
             return "Quotes: Successfully removed quote number {}".format(quote_number)
         return "Quotes: Unable to remove quote number {}, it may be out of bounds or not an int.".format(quote_number)
@@ -111,9 +111,9 @@ class Quotes(Plugin):
 
     # Run whenever someone types /help GroupNews
     def get_help(self):
-        return "Commands: \n", \
-                "'/qadd [quote]' \n,"\
-                "'/qrm [quote]' \n," \
-                "'/qlist' \n," \
-                "'/qview' [number]'" \
-                "'/qrandom' \n" 
+        return "Commands:\n" \
+                "'/qadd [quote]'\n"\
+                "'/qrm [quote]'\n" \
+                "'/qlist'\n" \
+                "'/qview'[number]'\n" \
+                "'/qrandom'\n" 

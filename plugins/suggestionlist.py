@@ -73,7 +73,7 @@ class Suggestions(Plugin):
 
     # Commands that are enabled on the server. These are what triggers actions on this plugin
     def get_commands(self):
-        return {"sls", "slrm", "sl", "slp"}
+        return {"sls", "slrm", "sl", "slp", "slc"}
 
     # Returns the name of the plugin
     def get_name(self):
@@ -81,9 +81,9 @@ class Suggestions(Plugin):
 
     # Run whenever someone types /help GroupNews
     def get_help(self):
-        return "Commands:\n \
-                '/sls [suggestion]' To make a suggestion\n\
-                '/slrm [suggestion]' To remove a suggestion\n \
-                '/sl' To list all suggestions\n \
-                '/slp' To randomly pick a submission\n \
-                '/slc' To clear the list" 
+        return "Commands:\n" \
+                "'/sls [suggestion]' To make a suggestion\n" \
+                "'/slrm [suggestion]' To remove a suggestion\n" \
+                "'/sl' To list all suggestions\n" \
+                "'/slp' To randomly pick a submission\n" \
+                "'/slc' To clear the list" 

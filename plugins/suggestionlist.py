@@ -12,7 +12,7 @@ def load(data_dir, bot):
 
 """
 Created by Matthew Klawitter 3/27/2019
-Last Updated: 3/27/2019
+Last Updated: 5/19/2019
 """
 
 
@@ -54,29 +54,36 @@ class Suggestions(Plugin):
         random_suggestion = random.choice(list(self.list.keys()))
         return "Randomly selected {}".format(random_suggestion)
 
+    def com_clear(self, command):
+        self.list = {}
+        return "Successfully cleared suggestions"
+
     # Run whenever someone on telegram types one of these commands
     def on_command(self, command):
-        if command.command == "slsuggest":
+        if command.command == "sls":
             return {"type": "message", "message": self.com_suggest(command)}
         elif command.command == "slrm":
             return {"type": "message", "message": self.com_remove(command)}
-        elif command.command == "sllist":
+        elif command.command == "sl":
             return {"type": "message", "message": self.com_list(command)}
-        elif command.command == "slpick":
+        elif command.command == "slp":
             return {"type": "message", "message": self.com_pick(command)}
+        elif command.command == "slc":
+            return {"type": "message", "message": self.com_clear(command)}
 
     # Commands that are enabled on the server. These are what triggers actions on this plugin
     def get_commands(self):
-        return {"slsuggest", "slrm", "sllist", "slpick"}
+        return {"sls", "slrm", "sl", "slp"}
 
     # Returns the name of the plugin
     def get_name(self):
-        return "Suggestions"
+        return "SuggestionsList"
 
     # Run whenever someone types /help GroupNews
     def get_help(self):
-        return "Commands: \n, \
-                '/slsuggest [suggestion]' \n,\
-                '/slrm [suggestion]' \n, \
-                '/sllist' \n, \
-                '/slpick' \n" 
+        return "Commands:\n \
+                '/sls [suggestion]' To make a suggestion\n\
+                '/slrm [suggestion]' To remove a suggestion\n \
+                '/sl' To list all suggestions\n \
+                '/slp' To randomly pick a submission\n \
+                '/slc' To clear the list" 

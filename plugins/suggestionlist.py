@@ -1,4 +1,5 @@
 import os
+import pickle
 import random
 
 from plugin import Plugin
@@ -12,7 +13,7 @@ def load(data_dir, bot):
 
 """
 Created by Matthew Klawitter 3/27/2019
-Last Updated: 5/19/2019
+Last Updated: 6/12/2019
 """
 
 
@@ -23,8 +24,9 @@ class Suggestions(Plugin):
         self.dir = data_dir
         # A reference to the bot itself for more advanced operations
         self.bot = bot
-        # dict containing suggestions of type string and the amount of times they have been suggested
-        self.list = {}
+        # dict containing lists of suggestions
+        self.lists = {}
+        self.load()
 
     def com_suggest(self, command):
         suggestion = command.args
@@ -57,6 +59,34 @@ class Suggestions(Plugin):
     def com_clear(self, command):
         self.list = {}
         return "Successfully cleared suggestions"
+
+    # Saves all lists
+    def save(self):
+        with open(self.dir + "/lists.file", "wb") as f:
+            pickle.dump(self.lists, f)
+            f.seek(0)
+            f.close()
+
+    # Loads all lists
+    def load(self):
+        try:
+            if os.path.getsize(self.dir + "/lists.file") > 0:
+                with open(self.dir + "/lists.file", "rb") as f:
+                    self.lists = pickle.load(f)
+                    f.seek(0)
+                    f.close()
+            print("SuggestionList: List file successfully loaded!")
+        except FileNotFoundError:
+            if not os.path.exists(self.dir):
+                os.makedirs(self.dir)
+
+            # Ensures that the pokebank file is created.
+            with open(self.dir + "/lists.file", "w+") as f:
+                f.write("")
+                f.seek(0)
+                f.close()
+            print("SuggestionList: No List file exists, creating a new one.")
+            self.lists = {}
 
     # Run whenever someone on telegram types one of these commands
     def on_command(self, command):

@@ -5,20 +5,16 @@ import random
 from plugin import Plugin
 
 
-# Called when the bot loads the plugin
-# Instantiates this plugin and passes it the bot and plugin directory
-def load(data_dir, bot):
-    return Quotes(data_dir, bot)
-
 
 """
 Created by Matthew Klawitter 4/25/2019
-Last Updated: 4/25/2019
+Last Updated: 9/212/2019
 """
 
 
+
 # Main class of the plugin that handles all commands and interactions
-class Quotes(Plugin):
+class BotPlugin(Plugin):
     def __init__(self, data_dir, bot):
         # The directory in which this plugin can store data
         self.dir = data_dir

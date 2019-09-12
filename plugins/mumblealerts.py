@@ -7,19 +7,17 @@ from plugin import Plugin
 from time import sleep
 
 
-def load(data_dir, bot):
-    return MumbleAlerts(data_dir, bot)
-
 
 """
 Created by Matthew Klawitter 11/13/2018
-Last Updated: 11/13/2018
-Version: v1.0.0.0
+Last Updated: 9/12/2019
+Version: v2.0.0.0
 Credit to https://gist.github.com/azlux for mumble ping algorithm https://gist.github.com/azlux/315c924af4800ffbc2c91db3ab8a59bc
 """
 
 
-class MumbleAlerts(Plugin):
+
+class BotPlugin(Plugin):
     def __init__(self, data_dir, bot):
         self.data_dir = data_dir
         self.bot = bot

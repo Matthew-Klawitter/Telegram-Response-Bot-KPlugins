@@ -117,3 +117,18 @@ class Quotes(Plugin):
                 "'/qlist'\n" \
                 "'/qview'[number]'\n" \
                 "'/qrandom'\n" 
+    
+    def on_message(self, message):
+        # Implement this if has_message_access returns True
+        # message is some string sent in Telegram
+        # return a response to the message
+        return ""
+
+    def has_message_access(self):
+        return False
+	
+    def enable(self):
+        pass
+
+    def disable(self):
+        pass

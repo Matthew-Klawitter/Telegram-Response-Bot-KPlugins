@@ -1,4 +1,5 @@
 import csv
+import os
 
 from pathlib import Path
 from plugin import Plugin
@@ -15,12 +16,6 @@ class Gencon19Budget(Plugin):
         self.bot = bot
         self.budget = Budget(self.dir)
 
-    def on_message(self, message):
-        # Implement this if has_message_access returns True
-        # message is some string sent in Telegram
-        # return a response to the message
-        return ""
-
     def on_command(self, command):
         # This method is called when someone types a '/' and one of the commands returned from the set within the get_commands method in this class
         # command is a Command object found within command_wrappers.py
@@ -28,23 +23,32 @@ class Gencon19Budget(Plugin):
             return {"type":"message", "message": self.budget.view_budget(command.user.username)}
         elif command.command == "genset":
             amount = command.args
-            if float(amount) == amount:
+            try:
+                amount = float(amount)
+                amount = round(amount, 2)
                 return {"type":"message", "message": self.budget.set_budget(command.user.username, amount)}
-            return {"type":"message", "message": "The amount you typed is invalid (not a double)"} 
+            except ValueError:
+                return {"type":"message", "message": "The amount you typed is invalid (not a float)"} 
         elif command.command == "gens":
             amount = command.args
-            if float(amount) == amount:
+            try:
+                amount = float(amount)
+                amount = round(amount, 2)
                 return {"type":"message", "message": self.budget.subtract(command.user.username, amount)}
-            return {"type":"message", "message": "The amount you typed is invalid (not a double)"}
+            except ValueError:
+                return {"type":"message", "message": "The amount you typed is invalid (not a float)"}
         elif command.command == "gena":
             amount = command.args
-            if float(amount) == amount:
+            try:
+                amount = float(amount)
+                amount = round(amount, 2)
                 return {"type":"message", "message": self.budget.add(command.user.username, amount)}
-            return {"type":"message", "message": "The amount you typed is invalid (not a double)"}
+            except ValueError:
+                return {"type":"message", "message": "The amount you typed is invalid (not a double)"}
 
     def get_commands(self):
         # Must return a set of command strings
-        return {"gen, genset, gens, gena"}
+        return {"gen", "genset", "gens", "gena"}
 
     def get_name(self):
         # This should return the name of your plugin, perferably the same name as this class
@@ -57,18 +61,9 @@ class Gencon19Budget(Plugin):
                 "'/gens [amount]' To subtract amount from budget\n" \
                 "'/gena [amount]' To add amount to budget\n" \
 
-    def has_message_access(self):
-        return False
-	
-    def enable(self):
-        pass
-
-    def disable(self):
-        pass
-
 class Budget:
     def __init__(self, dir):
-        self.dir = dir + "/budget.csv"
+        self.dir = dir
         self.budget = self.load()
 
     def is_user(self, username):
@@ -104,19 +99,25 @@ class Budget:
         return "You have not yet set a budget to view. Please enter one using '/genset [amount]'"
 
     def save(self):
-        with open(self.dir, "w") as f:
+        if not os.path.exists(self.dir):
+            os.mkdir(self.dir)
+
+        with open(self.dir + "/budget.csv", "w") as f:
             for key in self.budget.keys():
-                f.write
                 f.write("%s,%s\n"%(key,self.budget[key]))
 
     def load(self):  
-        budget_file = Path(self.dir)
+        if not os.path.exists(self.dir):
+            os.mkdir(self.dir)
+        
+        budget_file = Path(self.dir + "/budget.csv")
 
-        if budget_file.exists():
-            with open(self.dir, "r") as csv_file:
-                csv_reader = csv.DictReader(csv_file)
+        if budget_file.is_file():
+            with open(self.dir + "/budget.csv", "r") as csv_file:
+                csv_reader = csv.reader(csv_file, delimiter=',')
                 d = {}
-                for k,v in csv_reader:
-                    d[k] = v
+                for row in csv_reader:
+                    print(row)
+                    d[row[0]] = row[1]
                 return d
         return {}

@@ -67,3 +67,18 @@ class MinecraftStatus(Plugin):
                 '/mcping' to see the server's ping\n \
                 '/mcplayers' to see player names connected\n \
                 '/mcsetup [ip]' to configure which server to obtain information on."
+    
+    def on_message(self, message):
+        # Implement this if has_message_access returns True
+        # message is some string sent in Telegram
+        # return a response to the message
+        return ""
+
+    def has_message_access(self):
+        return False
+	
+    def enable(self):
+        pass
+
+    def disable(self):
+        pass

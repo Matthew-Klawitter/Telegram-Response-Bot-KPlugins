@@ -10,8 +10,8 @@ from time import sleep
 
 """
 Created by Matthew Klawitter 11/13/2018
-Last Updated: 9/12/2019
-Version: v2.0.0.0
+Last Updated: 9/18/2019
+Version: v2.1.0.0
 Credit to https://gist.github.com/azlux for mumble ping algorithm https://gist.github.com/azlux/315c924af4800ffbc2c91db3ab8a59bc
 """
 
@@ -85,25 +85,70 @@ class BotPlugin(Plugin):
                     self.bot.send_message(channel, message)
             sleep(10)
 
+    def com_enable(self, command):
+        for channel in self.channels:
+            if channel == command.chat.id:
+                return {"type": "message", "message": "This channel is already authorized for mumble alerts."}
+        self.channels.append(command.chat.id)
+        return {"type": "message", "message": "Enabled mumble alerts for this channel."}
+
+    def com_disable(self, command):
+        for channel in self.channels:
+            if channel == command.chat.id:
+                self.channels.remove(channel)
+                return {"type": "message", "message": "Disabled mumble alerts for this channel."}
+        return {"type": "message", "message": "Alerts have not been enabled for this channel."}
+
+    def com_add(self, command):
+        channel = command.args
+        
+        if channel in self.channels:
+            return {"type": "message", "message": "This channel is already authorized for mumble alerts."}
+        self.channels.append(command.chat.id)
+        return {"type": "message", "message": "Enabled mumble alerts for this channel."}
+
+    def com_rm(self, command):
+        channel = command.args
+
+        if channel in self.channels:
+            self.channels.remove(channel)
+            return {"type": "message", "message": "Disabled mumble alerts for this channel."}
+        return {"type": "message", "message": "Alerts have not been enabled for this channel."}
+
     def on_command(self, command):
-        if command.command == "enablemumble":
-            for channel in self.channels:
-                if channel == command.chat.id:
-                    return {"type": "message", "message": "This channel is already authorized for mumble alerts."}
-            self.channels.append(command.chat.id)
-            return {"type": "message", "message": "Enabled mumble alerts for this channel."}
-        elif command.command == "disablemumble":
-            for channel in self.channels:
-                if channel == command.chat.id:
-                    self.channels.remove(channel)
-                    return {"type": "message", "message": "Disabled mumble alerts for this channel."}
-            return {"type": "message", "message": "Alerts have not been enabled for this channel."}
+        if command.command == "menable":
+            return self.com_enable(command)    
+        elif command.command == "mdisable":
+            return self.com_disable(command)
+        elif command.command == "madd":
+            return self.com_add(command)
+        elif command.command == "mrm":
+            return self.com_rm(command)
 
     def get_commands(self):
-        return {"enablemumble", "disablemumble"}
+        return {"menable", "mdisable", "madd", "mrm"}
 
     def get_name(self):
         return "Mumble Alerts"
 
     def get_help(self):
-        return "'/enablemumble' to enable alerts \n '/disablemumble' to disable alerts"
+        return "Mumble Alerts Help Doc\n" \
+               "'menable' to enable alerts in the current channel\n" \
+               "'mdisable' to disable alerts in the current channel\n" \
+               "'madd [channel]' to enable alerts in a specified channel\n" \
+               "'mrm [channel]' to disable alerts in a specified channel\n"
+
+    def on_message(self, message):
+        # Implement this if has_message_access returns True
+        # message is some string sent in Telegram
+        # return a response to the message
+        return ""
+
+    def has_message_access(self):
+        return False
+
+    def enable(self):
+        pass
+
+    def disable(self):
+        pass

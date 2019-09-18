@@ -98,7 +98,7 @@ class BotPlugin(Plugin):
     def com_disable(self, command):
         for channel in self.channels:
             if channel == command.chat.id:
-                self.channels.remove(channel)
+                self.channels.remove(command.chat.id)
                 return {"type": "message", "message": "Disabled mumble alerts for this channel."}
         return {"type": "message", "message": "Alerts have not been enabled for this channel."}
 
@@ -107,7 +107,7 @@ class BotPlugin(Plugin):
         
         if channel in self.channels:
             return {"type": "message", "message": "This channel is already authorized for mumble alerts."}
-        self.channels.append(command.chat.id)
+        self.channels.append(channel)
         return {"type": "message", "message": "Enabled mumble alerts for this channel."}
 
     def com_rm(self, command):

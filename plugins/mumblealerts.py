@@ -69,21 +69,24 @@ class BotPlugin(Plugin):
 
     def return_status(self):
         while threading.main_thread().is_alive():
-            if len(self.channels) > 0:
-                updated_users = self.connected_users()
+            updated_users = self.connected_users()
 
-                message = ""
+            if updated_users != self.current_users:
+                if len(self.channels) > 0:
+                    message = ""
 
-                if self.current_users < updated_users:
-                    message = "A user has joined the mumble server. There are now " + str(updated_users) + " connected."
+                    if self.current_users < updated_users:
+                        message = "A user has joined the mumble server. There are now " + str(updated_users) + " connected."
+                        self.current_users = updated_users
+                    elif self.current_users > updated_users:
+                        message = "A user has left the mumble server. There are now " + str(updated_users) + " connected."
+                        self.current_users = updated_users
+
+                    for channel in self.channels:
+                        self.bot.send_message(channel, message)
+                else:
                     self.current_users = updated_users
-                elif self.current_users > updated_users:
-                    message = "A user has left the mumble server. There are now " + str(updated_users) + " connected."
-                    self.current_users = updated_users
-
-                for channel in self.channels:
-                    self.bot.send_message(channel, message)
-            sleep(10)
+            sleep(15)
 
     def com_enable(self, command):
         for channel in self.channels:

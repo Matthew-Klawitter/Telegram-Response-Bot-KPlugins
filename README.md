@@ -1,3 +1,6 @@
+# Important Notice:
+These plugins are no longer in active development but have been left in a relatively stable state. If you require help or encounter a bug, please don't hesitate to submit an issue and I'll get back to you when I have time. For similar functionality please refer to the new actively developed bot at https://github.com/Matthew-Klawitter/Telegram-Response-Bot-Java
+
 # Telegram-Response-Bot-KPlugins
 A repository to maintain plugins for the telegram bot at https://github.com/Mark-Powers/Telegram-Response-Bot
 ## Plugin Installation ##
